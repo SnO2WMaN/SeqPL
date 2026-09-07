@@ -219,7 +219,7 @@ lemma root_forces_neg_boxItr_bot_imp
   use N;
   intro κ _ M _;
   -- Both `x ⊩[M] ∼□^[N]⊥` and `∀ n < N, x ⊩[M] TBB n` express `N ≤ x.rank`.
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   by_contra hC;
   obtain ⟨h₁, h₂⟩ := Model.World.not_forces_imp.mp hC;
   apply h₂;
@@ -293,7 +293,7 @@ theorem provability_TFAE : [
   tfae_have 1 → 2 := LogicA.iff_provable_provable_GL_neg_boxItr_bot_imp.mp;
   tfae_have 2 → 3 := by
     rintro ⟨n, hGL⟩ κ _ M _ a Rra;
-    haveI := RootedModel.graftOmega.isGL (M := M) (a := ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩) Rra;
+    have := RootedModel.graftOmega.isGL (M := M) (a := ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩) Rra;
     exact ProvableHilbert.Kripke.soundness hGL ((M.graftOmega ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩).toModel)
       (M.graftOmega ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩).root.1
       (Model.World.forces_neg.mpr RootedModel.graftOmega.root_not_forces_boxItr_bot);
@@ -302,7 +302,7 @@ theorem provability_TFAE : [
     by_contra hA;
     obtain ⟨κ, hne, M, hfgl, hroot, r, Rrr, hrS⟩ :=
       exists_reflexive_countermodel_of_not_mem_LogicA hA;
-    haveI := hne; haveI := hfgl;
+    have := hne; have := hfgl;
     have ha : ∀ B, (□B) ∈ A.subfmls → r ⊩[_] ((□B) 🡒 B) := by
       intro B hB;
       exact Model.World.forces_fconj.mp hrS _

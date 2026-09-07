@@ -385,8 +385,8 @@ lemma exists_forces_charFormulaUnder_of_not_forces_boxItr [N.IsFiniteGL] [Fintyp
   (hv : v ⊮[(N.graftOmega c).toModel] (□^[a.1.rank + 1]⊥))
   {x : M.World} (hx : x.IsInConeOf a.1) :
   ∃ w, v ≺ w ∧ w ⊩[(N.graftOmega c).toModel] (x.charFormulaUnder P) := by
-  haveI hGL : (N.graftOmega c).IsGL := isGL Rrc;
-  haveI := hGL.toIsTrans;
+  have hGL : (N.graftOmega c).IsGL := isGL Rrc;
+  have := hGL.toIsTrans;
   obtain ⟨w₀, Rvw₀, hw₀⟩ := forces_dia.mp
     (forces_and.mp (forces_dia_and_valuationConj_of_not_forces_boxItr hAroot Rrv hv)).1;
   rcases hx with rfl | hax;
@@ -403,8 +403,8 @@ lemma root_exists_forces_charFormulaUnder [N.IsFiniteGL] [Fintype N.World]
   {x : M.World} (hx : x.IsInConeOf a.1) :
   ∃ w, (N.graftOmega c).root.1 ≺ w ∧
   w ⊩[(N.graftOmega c).toModel] (x.charFormulaUnder P) := by
-  haveI hGL : (N.graftOmega c).IsGL := isGL Rrc;
-  haveI := hGL.toIsTrans;
+  have hGL : (N.graftOmega c).IsGL := isGL Rrc;
+  have := hGL.toIsTrans;
   have Rrv : (N.graftOmega c).root.1 ≺ (Sum.inr a.1.rank : (N.graftOmega c).World) := by
     show N.root.1 = N.root.1;
     rfl;
@@ -499,12 +499,12 @@ theorem exists_almostDefiningFormula [DecidableEq α] [M.IsFiniteGLTree] [Fintyp
         exact forces_boxItr.mp hw (.inl t) ⟨.inl a.1, Or.inl rfl, relItr_inl ht⟩;
   case almost_unique =>
     intro κ' _ N _ c Rrc _ _ hAroot;
-    haveI : Fintype N.World := Fintype.ofFinite _;
+    have : Fintype N.World := Fintype.ofFinite _;
     have hcne : c ≠ N.root.1 := fun h => not_rel_root (h ▸ Rrc);
     set c' : N.NonRoot := ⟨c, hcne⟩ with hc'_def;
-    haveI hGL : (N.graftOmega c').IsGL := isGL Rrc;
-    haveI := hGL.toIsTrans;
-    haveI : Std.Irrefl (N.graftOmega c').Rel :=
+    have hGL : (N.graftOmega c').IsGL := isGL Rrc;
+    have := hGL.toIsTrans;
+    have : Std.Irrefl (N.graftOmega c').Rel :=
       @ConverseWellFounded.irrefl _ _ hGL.toIsConverseWellFounded;
     -- Unlike a `P`-isomorphism, this bisimulation may relate chain points of the two
     -- ω-models of matching depth regardless of where the respective base trees end,

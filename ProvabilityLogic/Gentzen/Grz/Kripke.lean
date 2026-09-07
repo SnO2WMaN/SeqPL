@@ -606,7 +606,7 @@ end Kripke
 
 @[simp, grind .]
 theorem not_provable_empty : ⊬ᵍ[Grz] (∅ ⟹ ∅ : Sequent α) := by
-  by_contra! h;
+  by_contra h;
   have : (0 : trivial_Grz_model.World) ⊩[_] (∅ ⟹ ∅) := Kripke.finite_soundness h trivial_Grz_model 0;
   grind;
 

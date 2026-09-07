@@ -24,8 +24,8 @@ Main results:
 
 @[expose] public section
 
-open LO
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 
 variable {α : Type u} {A : Formula α}
 

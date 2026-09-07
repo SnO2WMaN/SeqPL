@@ -10,14 +10,14 @@ public import ProvabilityLogic.ToFoundation.FirstOrder.Incompleteness.Reflection
 `D = PL_PA(PA + ω-Con(PA))` to the local `Σ₁`-reflection formulation.
 
 Main definitions and results:
-- `LO.FirstOrder.ArithmeticTheory.localReflection`: the local reflection schema
+- `FFL.FirstOrder.ArithmeticTheory.localReflection`: the local reflection schema
   `Rfn_Γₙ(T) = { Pr_T(σ) 🡒 σ | σ a Γₙ-sentence }`.
 - `LogicD.arithmetical_soundness` (the `⊇` half): if `A ∈ LogicD` then
   `(T ∪ T.localReflection 𝚺 1) ⊢ f T A` for every realization `f`.
 - `LogicD.arithmetical_completeness` (the `⊆` half): if
   `(T ∪ T.localReflection 𝚺 1) ⊢ f T A` for every realization `f`,
   then `A ∈ LogicD`; `sorry` for now.
-- `LO.FirstOrder.ArithmeticTheory.unbounded_localReflection`: the instance of the
+- `FFL.FirstOrder.ArithmeticTheory.unbounded_localReflection`: the instance of the
   unboundedness theorem needed for the `⊆` half; `sorry` for now.
 - `LogicD.eq_provabilityLogicRelativeTo_localReflection`: the resulting equality
   `D = PL_T(T ∪ Rfn_Σ₁(T))` for sound `T`.
@@ -29,9 +29,9 @@ Main definitions and results:
 
 @[expose] public section
 
-open LO
-open LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 open Model Model.World
 
 namespace LogicD
@@ -95,7 +95,7 @@ theorem arithmetical_completeness
   replace H := LogicGL.iff_forces_root.not.mp $ iff_provable_D_provable_GL.not.mp H;
   push Not at H;
   obtain ⟨κ, _, M, _, hA⟩ := H;
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   obtain ⟨hA₁, hA₂⟩ := not_forces_imp.mp hA;
   have ha : ∀ Γ ⊆ A.subfmls.prebox, M.root.1 ⊩[_] (Formula.box (⋁Γ.box) 🡒 ⋁Γ.box) := by
     intro Γ hΓ;
@@ -129,13 +129,13 @@ theorem eq_provabilityLogicRelativeTo_localReflection [ℕ↓[ℒₒᵣ] ⊧* T]
   -- (`unbounded_localReflection`).
   -- Currently depends on two `sorry`s: the semantic core of Lemma 56 (behind
   -- `provable_reflection_of_mem_not_LogicD`) and the unboundedness theorem.
-  haveI hTU : T ⪯ (T ∪ T.localReflection 𝚺 1) := inferInstance;
-  haveI : 𝗜𝚺₁ ⪯ (T ∪ T.localReflection 𝚺 1) := Entailment.WeakerThan.trans (inferInstanceAs (𝗜𝚺₁ ⪯ T)) hTU;
-  haveI : Entailment.Consistent (T ∪ T.localReflection 𝚺 1) := consistent_of_model (T ∪ T.localReflection 𝚺 1) ℕ;
+  have hTU : T ⪯ (T ∪ T.localReflection 𝚺 1) := inferInstance;
+  have : 𝗜𝚺₁ ⪯ (T ∪ T.localReflection 𝚺 1) := Entailment.WeakerThan.trans (inferInstanceAs (𝗜𝚺₁ ⪯ T)) hTU;
+  have : Entailment.Consistent (T ∪ T.localReflection 𝚺 1) := consistent_of_model (T ∪ T.localReflection 𝚺 1) ℕ;
   apply Set.Subset.antisymm;
   . grind [arithmetical_soundness];
   . intro A hAL;
-    by_contra! hAD;
+    by_contra hAD;
     apply T.unbounded_localReflection;
     apply provable_reflection_of_mem_not_LogicD (A := A);
     . exact trace_univ_provabilityLogicRelativeTo_localReflection;

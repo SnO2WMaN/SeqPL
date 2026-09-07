@@ -82,7 +82,7 @@ lemma nodup (IR : Std.Irrefl R) (TR : IsTrans α R) {a b l} : ChainI R a b l →
 
 lemma finite_of_irreflexive_of_transitive [Finite α] (IR : Std.Irrefl R) (TR : IsTrans α R) (a b : α) :
     Finite {l : List α // l.ChainI R a b} := by
-  haveI : Fintype α := Fintype.ofFinite α
+  have : Fintype α := Fintype.ofFinite α
   let f : {l : List α // l.ChainI R a b} → {l : List α // l.Nodup} := fun l ↦ ⟨l, l.prop.nodup IR TR⟩
   have : Function.Injective f := by intro ⟨l₁, hl₁⟩ ⟨l₂, hl₂⟩; simp [f]
   exact Finite.of_injective f this

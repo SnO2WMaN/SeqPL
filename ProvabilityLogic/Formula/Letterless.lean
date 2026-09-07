@@ -126,9 +126,7 @@ lemma lift_toLetterless {A : Formula α} (hA : A.Letterless) :
     show (LetterlessFormula.lift (A.toLetterless hA') : Formula α) 🡒
       (LetterlessFormula.lift (C.toLetterless hC') : Formula α) = _;
     rw [ihA, ihC]
-  | box A ih =>
-    show □(LetterlessFormula.lift (A.toLetterless hA) : Formula α) = _;
-    rw [ih]
+  | box A ih => exact congrArg (fun B => □B) (ih hA)
 
 end Formula
 

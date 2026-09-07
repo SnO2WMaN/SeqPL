@@ -29,10 +29,10 @@ completeness is reduced to the Kripke-semantical characterization
 @[expose] public section
 
 open Classical
-open LO
-open LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
-open LO.FirstOrder.Arithmetic
+open FFL
+open FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
+open FFL.FirstOrder.Arithmetic
 open Model Model.World
 
 variable {κ : Type u} [Nonempty κ]
@@ -58,11 +58,11 @@ theorem arithmetical_soundness (h : A ∈ LogicS) (f : Realization α ℒₒᵣ)
   | provable_GL h =>
     exact models_of_provable inferInstance (LogicGL.arithmetical_soundness' h);
   | axiomT =>
-    simp only [Formula.interpret, models_iff, LO.Semantics.Imp.models_imply];
+    simp only [Formula.interpret, models_iff, FFL.Semantics.Imp.models_imply];
     intro h;
     exact models_of_provable inferInstance (𝔅.sound_on h);
   | mdp ihAB ihA =>
-    simp only [Formula.interpret, models_iff, LO.Semantics.Imp.models_imply] at ihAB;
+    simp only [Formula.interpret, models_iff, FFL.Semantics.Imp.models_imply] at ihAB;
     exact ihAB ihA;
 
 end soundness
@@ -70,8 +70,8 @@ end soundness
 
 section completeness
 
-open LO.FirstOrder.ProvabilityAbstraction.Provability
-open LO.FirstOrder.Arithmetic.Bootstrapping
+open FFL.FirstOrder.ProvabilityAbstraction.Provability
+open FFL.FirstOrder.Arithmetic.Bootstrapping
 
 variable {T : FirstOrder.ArithmeticTheory} [T.Δ₁] [𝗜𝚺₁ ⪯ T] [ℕ↓[ℒₒᵣ] ⊧* T]
 
@@ -89,28 +89,28 @@ theorem arithmetical_completeness [DecidableEq α]
   -- Solovay sentence of the new root of the `1`-extended model is true in `ℕ`
   -- (`solovay_root_sound`) and implies the negation of the realization of `A`
   -- (`SolovaySentences.rfl_mainlemma`).
-  haveI : ℕ↓[ℒₒᵣ] ⊧* 𝗜𝚺₁ := models_of_subtheory (T := 𝗜𝚺₁) (U := T) (M := ℕ) inferInstance;
+  have : ℕ↓[ℒₒᵣ] ⊧* 𝗜𝚺₁ := models_of_subtheory (T := 𝗜𝚺₁) (U := T) (M := ℕ) inferInstance;
   contrapose! H;
   replace H := LogicGL.iff_forces_root.not.mp $ iff_provable_S_provable_GL.not.mp H;
   push Not at H;
   obtain ⟨κ, _, M, _, hA⟩ := H;
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   obtain ⟨hA₁, hA₂⟩ := not_forces_imp.mp hA;
   have ha : ∀ B, (□B) ∈ A.subfmls → M.root.1 ⊩[_] ((□B) 🡒 B) := by
     intro B hB;
     apply forces_fconj.mp hA₁;
     simp only [Formula.subfmlsS, Finset.mem_image];
     exact ⟨B, FormulaFinset.iff_mem_prebox_mem.mpr hB, rfl⟩;
-  let S := LO.FirstOrder.Theory.standardProvability.solovaySentences T (M.extendRoot 1);
+  let S := FFL.FirstOrder.Theory.standardProvability.solovaySentences T (M.extendRoot 1);
   use S.realization;
   have h₁ : ℕ↓[ℒₒᵣ] ⊧
       (S.σ (M.extendRoot 1).root.1 🡒 ∼(S.realization T A)) :=
     models_of_provable inferInstance
       (SolovaySentences.rfl_mainlemma ha Formula.mem_subfmls_self |>.2 hA₂);
-  have h₂ : ℕ↓[ℒₒᵣ] ⊧ S.σ (M.extendRoot 1).root.1 := by
-    simpa [S, models_iff, LO.FirstOrder.Theory.standardProvability.solovaySentences] using!
+  have h₂ : ℕ↓[ℒₒᵣ] ⊧ S.σ (M.extendRoot 1).root.1 :=
+    models_iff.mpr <| SolovaySentences.val_solovay.mpr <|
       SolovaySentences.solovay_root_sound (T := T) (M := M.extendRoot 1);
-  simp only [models_iff, LO.Semantics.Not.models_not, LO.Semantics.Imp.models_imply] at h₁;
+  simp only [models_iff, FFL.Semantics.Not.models_not, FFL.Semantics.Imp.models_imply] at h₁;
   exact h₁ h₂;
 
 /--

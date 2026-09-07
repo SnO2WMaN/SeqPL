@@ -57,8 +57,8 @@ variable {M} (x : chainForest.World M)
 def World.last : M.World := x.1.getLast x.2.1
 
 instance instFinite [M.IsFiniteGL] : Finite (chainForest.World M) := by
-  haveI := Classical.decEq M.World;
-  haveI : Finite { l : List M.World // l.IsChain M.Rel } := List.chains_finite;
+  have := Classical.decEq M.World;
+  have : Finite { l : List M.World // l.IsChain M.Rel } := List.chains_finite;
   apply Finite.of_injective
     (fun x => (⟨x.1, x.2.2⟩ : { l : List M.World // l.IsChain M.Rel }));
   intro x y h;
@@ -125,7 +125,7 @@ instance : Std.Irrefl (M.dModelTree r o).Rel := ⟨by
   . exact absurd h.2 (lt_irrefl _);⟩
 
 instance instFinite [M.IsFiniteGL] : Finite (M.dModelTree r o).World := by
-  haveI : Finite (chainForest.World M) := chainForest.instFinite;
+  have : Finite (chainForest.World M) := chainForest.instFinite;
   infer_instance;
 
 instance [M.IsFiniteGL] : (M.dModelTree r o).IsFiniteGL where
@@ -208,7 +208,7 @@ def graftOmegaPseudoEpimorphism (M : Model κ α) [M.IsFiniteGL] (r : M.World)
     | .inl none => .inr ⊤
     | .inr n => .inr ((n : ℕ) + 1 : ℕ)
   forth := by
-    haveI := Classical.decEq M.World;
+    have := Classical.decEq M.World;
     rintro ((_ | _ | c) | i) ((_ | _ | c') | j) Rxy;
     -- from the root `b` (↦ ω)
     . exact Rxy.elim;

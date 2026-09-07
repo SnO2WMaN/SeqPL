@@ -52,8 +52,7 @@ variable {a : M.NonRoot} {k : ℕ}
 lemma ne_root_of_rel [IsTrans _ M.Rel] [Std.Irrefl M.Rel] (_Rra : M.root.1 ≺ a.1) : a.1 ≠ M.root.1 :=
   a.2
 
-@[reducible]
-def isFiniteGL [M.IsFiniteGL] (Rra : M.root.1 ≺ a.1) : (M.graft a k).IsFiniteGL where
+theorem isFiniteGL [M.IsFiniteGL] (Rra : M.root.1 ≺ a.1) : (M.graft a k).IsFiniteGL where
   trans := by
     have hne : a.1 ≠ M.root.1 := a.2;
     have hnr : ∀ x : M.World, ¬x ≺ M.root.1 := fun _ => not_rel_root;

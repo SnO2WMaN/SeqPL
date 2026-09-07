@@ -43,7 +43,7 @@ lemma rank_eq (i : (finiteLineModel n).World) : i.rank = (n - i) := by
     exact not_lt.mpr (Fin.le_last y);
   | cast i ih =>
     suffices (finiteLineModel.of i.castSucc).rank = (finiteLineModel.of i.succ).rank + 1 by grind;
-    haveI : IsConverseWellFounded (finiteLineModel n).World (finiteLineModel n).Rel :=
+    have : IsConverseWellFounded (finiteLineModel n).World (finiteLineModel n).Rel :=
       ⟨(inferInstance : (finiteLineModel n).IsGL).cwf⟩;
     apply cwfHeight_eq_succ_cwfHeight (R := (finiteLineModel n).Rel);
     . exact Fin.castSucc_lt_succ;
@@ -87,9 +87,9 @@ lemma worldEquiv_rel_iff {i j : (finiteLineModel n).World} :
   i < j ↔ (worldEquiv (α := α) i : (uLiftFiniteLineModel n (α := α)).World) ≺ worldEquiv j := Iff.rfl
 
 lemma rank_eq (x : (uLiftFiniteLineModel n (α := α)).World) : x.rank = (n - x.down) := by
-  haveI : IsConverseWellFounded (finiteLineModel n).World (finiteLineModel n).Rel :=
+  have : IsConverseWellFounded (finiteLineModel n).World (finiteLineModel n).Rel :=
     ⟨(inferInstance : (finiteLineModel n).IsGL).cwf⟩;
-  haveI : IsConverseWellFounded (uLiftFiniteLineModel n (α := α)).World (uLiftFiniteLineModel n (α := α)).Rel :=
+  have : IsConverseWellFounded (uLiftFiniteLineModel n (α := α)).World (uLiftFiniteLineModel n (α := α)).Rel :=
     ⟨(inferInstance : (uLiftFiniteLineModel n (α := α)).IsGL).cwf⟩;
   obtain ⟨i, rfl⟩ := worldEquiv.surjective x;
   show cwfHeight (uLiftFiniteLineModel n (α := α)).Rel (worldEquiv i) = (n - i);

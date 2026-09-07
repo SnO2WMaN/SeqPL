@@ -4,11 +4,11 @@ public import Foundation.FirstOrder.Incompleteness.Löb
 
 @[expose] public section
 
-open LO
-open LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 
-namespace LO.FirstOrder.ArithmeticTheory
+namespace FFL.FirstOrder.ArithmeticTheory
 
 /-- The local reflection schema `Rfn_Γₙ(T) = { Pr_T(σ) 🡒 σ | σ a Γₙ-sentence }` for the
 standard provability predicate of `T`.
@@ -70,11 +70,11 @@ theorem unbounded_localReflection
       Entailment.Inconsistent (insert π T : FirstOrder.ArithmeticTheory) by
     sorry
   intro π h1
-  have h2 : T ⊢ (∼π) := LO.FirstOrder.Arithmetic.löb_theorem h1
+  have h2 : T ⊢ (∼π) := FFL.FirstOrder.Arithmetic.löb_theorem h1
   have h3 : (insert π T : FirstOrder.ArithmeticTheory) ⊢ π := Entailment.by_axm (Set.mem_insert π T)
   have h4 : (insert π T : FirstOrder.ArithmeticTheory) ⊢ (∼π) := Entailment.wk! (Set.subset_insert π T) h2
   exact Entailment.inconsistent_of_provable (by cl_prover [h3, h4])
 
 end
 
-end LO.FirstOrder.ArithmeticTheory
+end FFL.FirstOrder.ArithmeticTheory

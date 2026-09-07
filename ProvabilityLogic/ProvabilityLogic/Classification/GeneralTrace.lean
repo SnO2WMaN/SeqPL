@@ -140,7 +140,7 @@ lemma LogicGL.provable_neg_boxItr_bot_imp_dia_subfmlsS [DecidableEq α] {A : For
     ((∼(□^[A.subfmls.prebox.card + 1]⊥)) 🡒 ◇(⋀A.subfmlsS)) ∈ LogicGL := by
   apply LogicGL.iff_forces_root.mpr;
   intro κ _ M _ hne;
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   replace hne : ¬(Model.World.rank M.root.1 < A.subfmls.prebox.card + 1) :=
     fun h => (Model.World.forces_neg.mp hne) (Model.iff_rank_lt_forces_boxItr_bot.mp h);
   obtain ⟨z, Rrz, hz⟩ := Model.exists_forces_axiomT_of_card_lt_rank
@@ -167,7 +167,7 @@ lemma Formula.trace_finite_or_cofinite [DecidableEq α] {A : Formula α} :
   obtain ⟨m, hm₁, hm₂⟩ := h_inf.exists_gt (A.subfmls.prebox.card);
   obtain ⟨κ, _, M, _, _, hh, hr⟩ := Formula.iff_mem_trace.mp hm₁;
   have : Finite M.World := by infer_instance;
-  haveI : M.IsFiniteGL := {};
+  have : M.IsFiniteGL := {};
   have hroot : M.height = Model.World.rank M.root.1 := rfl;
   have H₁ : M.root.1 ⊩[M.toModel] (∼(□^[A.subfmls.prebox.card + 1]⊥)) := by
     apply Model.World.forces_neg.mpr;
@@ -191,7 +191,7 @@ lemma Formula.trace_finite_or_cofinite [DecidableEq α] {A : Formula α} :
   replace hge : M.height ≤ n := by simpa using hge;
   have hra : Model.World.rank a < M.height := RootedModel.rank_lt_height Rra;
   have hane : a ≠ M.root.1 := fun h => Std.Irrefl.irrefl _ (h ▸ Rra);
-  haveI := RootedModel.graft.isFiniteGL (M := M) (a := ⟨a, hane⟩)
+  have := RootedModel.graft.isFiniteGL (M := M) (a := ⟨a, hane⟩)
     (k := n - Model.World.rank a - 1) Rra;
   apply Formula.iff_mem_trace.mpr;
   refine ⟨κ ⊕ Fin (n - Model.World.rank a - 1), inferInstance,
@@ -234,7 +234,7 @@ lemma eq_LogicGL_quasiExtension_trace {X : FormulaSet α} (_ : ∀ A ∈ X, ∀ 
       intro hn;
       exfalso;
       obtain ⟨κ, _, M, _, _, rfl, hr⟩ := Formula.iff_mem_trace.mp hn;
-      haveI : M.IsFiniteGL := ⟨⟩;
+      have : M.IsFiniteGL := ⟨⟩;
       exact hr (LogicGL.iff_forces_root.mp hA M);
     | mem₂ hA => intro hn; exact ⟨_, hA, hn⟩
     | @mdp A B hAB hA ihAB ihA =>
@@ -386,7 +386,7 @@ lemma subset_LogicGLAlpha_of_trace_coinfinite (hL : L.traceᶜ.Infinite) :
   have hGL : ((⋀(hfin.toFinset.image (TBB (α := α)))) 🡒 A) ∈ LogicGL := by
     apply LogicGL.iff_forces_root.mpr;
     intro κ _ M _ hTBB;
-    haveI : Fintype M.World := Fintype.ofFinite _;
+    have : Fintype M.World := Fintype.ofFinite _;
     have hnot : M.height ∉ A.trace := by
       intro hmem;
       exact Model.iff_forces_TBB_neq_rank.mp
@@ -412,7 +412,7 @@ lemma subset_LogicGLBetaMinus_of_trace_cofinite (hL : L.traceᶜ.Finite) :
   have hGL : ((LetterlessFormula.lift (TBBMinus _ hL) : Formula α) 🡒 A) ∈ LogicGL := by
     apply LogicGL.iff_forces_root.mpr;
     intro κ _ M _ hTM;
-    haveI : Fintype M.World := Fintype.ofFinite _;
+    have : Fintype M.World := Fintype.ofFinite _;
     have hnot : M.height ∉ A.trace := by
       intro hmem;
       have hrank : M.height ∈ LetterlessFormula.spectrum (TBBMinus _ hL) :=
@@ -449,8 +449,8 @@ lemma LogicGLBetaMinus.bot_mem_of_eq_univ {hCf : (Set.univ : Set ℕ)ᶜ.Finite}
 end
 
 open Classical
-open LO LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 open Model Model.World
 
 variable {T U : FirstOrder.ArithmeticTheory} [T.Δ₁] [𝗜𝚺₁ ⪯ T] [𝗜𝚺₁ ⪯ U]
@@ -466,7 +466,7 @@ theorem provable_TBB_of_mem_trace {n : ℕ}
   obtain ⟨A, hA_L, hA_tr⟩ : ∃ A ∈ (T.provabilityLogicRelativeTo U : Logic α), n ∈ A.trace := by
     simpa [Logic.trace, FormulaSet.trace] using h;
   obtain ⟨κ, _, M, _, _, rfl, hr⟩ := Formula.iff_mem_trace.mp hA_tr;
-  let S := LO.FirstOrder.Theory.standardProvability.solovaySentences T (M.extendRoot 1);
+  let S := FFL.FirstOrder.Theory.standardProvability.solovaySentences T (M.extendRoot 1);
   -- Each Solovay sentence implies the interpretation of `A 🡒 TBB M.height`.
   have key : ∀ i : (M.extendRoot 1).World,
       𝗜𝚺₁ ⊢ S.σ i 🡒 (S.realization T (A 🡒 TBB M.height)) := by
@@ -486,7 +486,7 @@ theorem provable_TBB_of_mem_trace {n : ℕ}
         S.SC2 _ _ (by simp [Model.Rel]);
       have b₂ : 𝗜𝚺₁ ⊢ S.σ (Sum.inl M.root.1) 🡒
           ∼(S.realization T (□^[M.height]⊥ : Formula α)) := by
-        apply S.mainlemma_neg (by simp [RootedModel.extendRoot, Fin.posLast]);
+        apply S.mainlemma_neg Sum.inr_ne_inl;
         apply Model.iff_rank_lt_forces_boxItr_bot.not.mp;
         rw [show (Sum.inl M.root.1 : (M.extendRoot 1).World)
           = RootedModel.extendRoot.embed (M := M) (n := 1) M.root.1 from rfl,
@@ -494,14 +494,14 @@ theorem provable_TBB_of_mem_trace {n : ℕ}
         exact lt_irrefl _;
       have b₃ : 𝗜𝚺₁ ⊢ T.standardProvability.dia (S.σ (Sum.inl M.root.1)) 🡒
           ∼(T.standardProvability (S.realization T (□^[M.height]⊥ : Formula α))) :=
-        contra! $ T.standardProvability.mono' $ CN!_of_CN!_right b₂;
+        contra $ T.standardProvability.mono' $ CN_of_CN_right b₂;
       have b₄ : S.realization T (□^[M.height + 1]⊥ : Formula α)
           = T.standardProvability (S.realization T (□^[M.height]⊥ : Formula α)) := by
         simp only [Formula.interpret_boxItr, Function.iterate_succ_apply'];
       simp only [Formula.interpret, TBB, b₄];
       cl_prover [b₁, b₃];
-  have main : 𝗜𝚺₁ ⊢ (S.realization T (A 🡒 TBB M.height)) := by
-    have := left_Udisj!_intro _ key;
+  have main : 𝗜𝚺₁ ⊢ (S.realization T (A 🡒 (TBB M.height : Formula α))) := by
+    have := left_Udisj_intro _ key;
     cl_prover [this, S.SC4];
   intro f;
   have h₃ : U ⊢ (S.realization T (TBB M.height : Formula α)) := by
@@ -565,7 +565,7 @@ lemma cofinite_trace_of_not_subset_LogicS [DecidableEq α]
 
 section
 
-open LO.FirstOrder.ProvabilityAbstraction.Provability
+open FFL.FirstOrder.ProvabilityAbstraction.Provability
 
 variable {A B : Formula α}
 
@@ -624,8 +624,8 @@ theorem provable_TBBMinus_of_not_subset_LogicS
   have := (LogicGL.iff_forces_root (A := (⋀A.subfmlsS) 🡒 A)).not.mp hA₂;
   push Not at this;
   obtain ⟨κ₁, hne, M₁, hfgl, hroot⟩ := this;
-  haveI := hne; haveI := hfgl;
-  haveI : Fintype M₁.World := Fintype.ofFinite _;
+  have := hne; have := hfgl;
+  have : Fintype M₁.World := Fintype.ofFinite _;
   obtain ⟨hconj, hnA⟩ := Model.World.not_forces_imp.mp hroot;
   have ha : ∀ B, (□B) ∈ A.subfmls → M₁.root.1 ⊩[M₁.toModel] ((□B) 🡒 B) := by
     intro B hB;
@@ -645,7 +645,7 @@ theorem provable_TBBMinus_of_not_subset_LogicS
     have : i ∈ (Finset.range M₁.height : Set ℕ) ∩ L.trace := by simpa [R] using hi;
     exact this.2;
   -- The Solovay sentences of `M₁.extendRoot 1`.
-  let S := LO.FirstOrder.Theory.standardProvability.solovaySentences T (M₁.extendRoot 1);
+  let S := FFL.FirstOrder.Theory.standardProvability.solovaySentences T (M₁.extendRoot 1);
   -- Each Solovay sentence implies the interpretation of `B 🡒 lift (TBBMinus L.traceᶜ)`.
   have key : ∀ i : (M₁.extendRoot 1).World,
       𝗜𝚺₁ ⊢ S.σ i 🡒
@@ -683,7 +683,7 @@ theorem provable_TBBMinus_of_not_subset_LogicS
       cl_prover [H₁];
   have main : 𝗜𝚺₁ ⊢
       (S.realization T (B 🡒 (LetterlessFormula.lift (TBBMinus _ hcof) : Formula α))) := by
-    have := left_Udisj!_intro _ key;
+    have := left_Udisj_intro _ key;
     cl_prover [this, S.SC4];
   -- Conclude membership in `L` via letterless independence of the realization.
   intro f;

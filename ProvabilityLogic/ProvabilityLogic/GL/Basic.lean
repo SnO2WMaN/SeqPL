@@ -5,8 +5,8 @@ public import ProvabilityLogic.ProvabilityLogic.SolovaySentences
 @[expose] public section
 
 open Classical
-open LO
-open LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.FirstOrder.ProvabilityAbstraction
 
 variable {κ : Type*} [Nonempty κ]
          {α : Type*}

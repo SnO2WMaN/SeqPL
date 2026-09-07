@@ -16,8 +16,8 @@ equivalence with the interpretation of the boxdot translate. Used by
 
 @[expose] public section
 
-open LO LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 
 variable {α : Type*}
 variable {L : FirstOrder.Language} [L.ReferenceableBy L] [L.DecidableEq]
@@ -47,17 +47,17 @@ lemma iff_interpret_boxdot_strongInterpret_inside [𝔅.HBL2] :
   | bot => simp only [Formula.boxdotTranslate, strongInterpret, Formula.interpret]; cl_prover;
   | imp A B ihA ihB =>
     simp only [Formula.boxdotTranslate, strongInterpret];
-    exact ECC!_of_E!_of_E! ihA ihB;
+    exact ECC_of_E_of_E ihA ihB;
   | box A ih =>
     simp only [Formula.boxdotTranslate, strongInterpret];
-    apply E!_trans Formula.interpret_boxdot_inside;
-    apply K!_intro;
-    . apply CKK!_of_C!_of_C!;
+    apply E_trans Formula.interpret_boxdot_inside;
+    apply K_intro;
+    . apply CKK_of_C_of_C;
       . cl_prover [ih];
       . apply WeakerThan.pbl (𝓢 := T₀);
         apply 𝔅.mono;
         cl_prover [ih];
-    . apply CKK!_of_C!_of_C!;
+    . apply CKK_of_C_of_C;
       . cl_prover [ih];
       . apply WeakerThan.pbl (𝓢 := T₀);
         apply 𝔅.mono;
@@ -68,8 +68,8 @@ interpretation of `A`. -/
 lemma iff_interpret_boxdot_strongInterpret [𝔅.HBL2] :
   T ⊢ (Aᵇ).interpret f 𝔅 ↔ T ⊢ A.strongInterpret f 𝔅 := by
   constructor;
-  . intro h; exact (C_of_E_mp! iff_interpret_boxdot_strongInterpret_inside) ⨀ h;
-  . intro h; exact (C_of_E_mpr! iff_interpret_boxdot_strongInterpret_inside) ⨀ h;
+  . intro h; exact (C_of_E_mp iff_interpret_boxdot_strongInterpret_inside) ⨀ h;
+  . intro h; exact (C_of_E_mpr iff_interpret_boxdot_strongInterpret_inside) ⨀ h;
 
 /-- A model of `T` satisfies the interpretation of the boxdot translate of `A` iff it satisfies
 the strong interpretation of `A`. -/

@@ -132,7 +132,7 @@ lemma consistent [DecidableEq α] : ⊥ ∉ @LogicS α := by
   -- A theorem of `S` is eventually forced on the chain of the tail model of any finite GL
   -- model, but `⊥` is forced nowhere; take the one-point GL model with the empty relation.
   let M : Model PUnit.{u + 1} α := ⟨fun _ _ => False, fun _ _ => False⟩;
-  haveI : M.IsFiniteGL :=
+  have : M.IsFiniteGL :=
     { trans := fun _ _ _ hf _ => hf.elim
       irrefl := fun _ hf => hf
       finite := inferInstance };

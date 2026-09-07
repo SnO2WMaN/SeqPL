@@ -6,8 +6,8 @@ public import ProvabilityLogic.ProvabilityLogic.ModifiedSolovaySentences
 @[expose] public section
 
 open Classical
-open LO LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 open Model Model.World
 open LogicGL
 
@@ -104,17 +104,17 @@ theorem exists_realization_sigma1_reflection_of_not_mem_LogicA [DecidableEq α]
   -- `StrongReflexiveCountermodel.ofReflexive`, modified so that the limit jumps from
   -- the root to the `A`-reflexive node `r` as soon as a witness of `σ` is found.
   obtain ⟨κ, hne, M, hfgl, hnA, r, hr, hrS⟩ := LogicA.exists_reflexive_countermodel_of_not_mem_LogicA hA;
-  haveI := hne;
-  haveI := hfgl;
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have := hne;
+  have := hfgl;
+  have : Fintype M.World := Fintype.ofFinite _;
   let X := StrongReflexiveCountermodel.ofReflexive M hnA r hr hrS;
-  let S := LO.FirstOrder.Theory.standardProvability.modifiedSolovaySentences T X hσ;
+  let S := FFL.FirstOrder.Theory.standardProvability.modifiedSolovaySentences T X hσ;
   use Model.World.rank X.r, S.realization;
   have h := S.reflection;
-  unfold LO.FirstOrder.ProvabilityAbstraction.Provability.conItr at h;
+  unfold FFL.FirstOrder.ProvabilityAbstraction.Provability.conItr at h;
   have e : (S.realization T ((∼(□^[Model.World.rank X.r]⊥)) ⋏ A : Formula α))
-      = ((((T.standardProvability^[Model.World.rank X.r] ⊥) 🡒 ⊥)
-          🡒 ((S.realization T A) 🡒 ⊥)) 🡒 ⊥) := by
+      = ((((T.standardProvability^[Model.World.rank X.r] ⊥) 🡒 (⊥ : ArithmeticSentence))
+          🡒 ((S.realization T A) 🡒 (⊥ : ArithmeticSentence))) 🡒 (⊥ : ArithmeticSentence)) := by
     simp [Formula.interpret];
   rw [e];
   cl_prover [h];

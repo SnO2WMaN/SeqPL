@@ -59,8 +59,7 @@ variable {a : M.NonRoot}
 
 /-- `M.graftOmega a` is a (necessarily infinite) GL model whenever `M` is a finite
 GL model and `a` lies strictly above the root. -/
-@[reducible]
-def isGL [M.IsFiniteGL] (Rra : M.root.1 ≺ a.1) : (M.graftOmega a).IsGL where
+theorem isGL [M.IsFiniteGL] (Rra : M.root.1 ≺ a.1) : (M.graftOmega a).IsGL where
   trans := by
     have hne : a.1 ≠ M.root.1 := a.2;
     have hnr : ∀ x : M.World, ¬x ≺ M.root.1 := fun _ => not_rel_root;

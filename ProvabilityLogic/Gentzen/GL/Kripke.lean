@@ -505,7 +505,7 @@ lemma truthlemma :
             . simp [FormulaFinset.prebox];
               apply ExpandedSequent.subset_lindenbaum.1;
               simp;
-            . by_contra!;
+            . by_contra;
               apply x.unprovable;
               apply ProvableGentzen.union' A;
         . intro B hB;

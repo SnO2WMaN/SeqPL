@@ -1,7 +1,7 @@
 module
 
 public import ProvabilityLogic.ProvabilityLogic.SolovaySentences
-public import ProvabilityLogic.ToFoundation.FirstOrder.Arithmetic.Basic.Sigma1WitnessForm
+public import Foundation.FirstOrder.Arithmetic.ISigma1.Prenex
 
 /-!
 # Modified Solovay sentences
@@ -36,23 +36,23 @@ the remaining input (`exists_realization_sigma1_reflection_of_not_mem_LogicA` in
 @[expose] public section
 
 open Classical
-open LO
-open LO.Entailment
-open LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.Entailment
+open FFL.FirstOrder.ProvabilityAbstraction
 open Model Model.World
 open RootedModel.extendRoot
 open RootedModel.extendRoot (embed)
 
 variable {α : Type u}
 
-namespace LO.FirstOrder.ProvabilityAbstraction.Provability
+namespace FFL.FirstOrder.ProvabilityAbstraction.Provability
 
 variable {L : FirstOrder.Language} [L.ReferenceableBy L] {T₀ T : FirstOrder.Theory L} [T₀ ⪯ T]
 
 /-- The `n`-times iterated consistency statement `∼(𝔅^[n]⊥)`. -/
 def conItr (𝔅 : Provability T₀ T) (n : ℕ) : FirstOrder.Sentence L := ∼(𝔅^[n] ⊥)
 
-end LO.FirstOrder.ProvabilityAbstraction.Provability
+end FFL.FirstOrder.ProvabilityAbstraction.Provability
 
 variable (κ : Type u) [Nonempty κ] [Fintype κ] [DecidableEq α] (A : _root_.Formula α)
 
@@ -154,7 +154,7 @@ variable {κ} {A}
 
   - [Bek90, Lemma 1 (§6)]
 -/
-structure LO.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences
+structure FFL.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences
     {L : FirstOrder.Language} [L.ReferenceableBy L]
     {T₀ T : FirstOrder.Theory L} [T₀ ⪯ T]
     (𝔅 : Provability T₀ T)
@@ -169,7 +169,7 @@ structure LO.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySenten
   protected SC5 : T₀ ⊢ 𝔅 σ 🡒 ∼(Λ X.N.root.1)
   protected SC6 : T₀ ⊢ ((∼σ : FirstOrder.Sentence L)) 🡒 ∼(Λ X.rN)
 
-namespace LO.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences
+namespace FFL.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences
 
 open StrongReflexiveCountermodel
 
@@ -193,16 +193,16 @@ private lemma mainlemma_aux {i : X.N.World} (hi : X.N.root.1 ≠ i) :
     ∀ {B : _root_.Formula α}, B ∈ A.subfmls →
       (i ⊩[X.N.toModel] B → T₀ ⊢ S.Λ i 🡒 (B.interpret S.realization 𝔅)) ∧
       (i ⊮[X.N.toModel] B → T₀ ⊢ S.Λ i 🡒 ∼(B.interpret S.realization 𝔅)) := by
-  haveI := X.isFiniteGL;
-  haveI hN : (X.extendRoot 1).IsFiniteGL := inferInstance;
-  haveI : IsTrans X.N.World X.N.Rel := hN.toIsTrans;
-  haveI : Std.Irrefl X.N.Rel := hN.toIrrefl;
+  have := X.isFiniteGL;
+  have hN : (X.extendRoot 1).IsFiniteGL := inferInstance;
+  have : IsTrans X.N.World X.N.Rel := hN.toIsTrans;
+  have : Std.Irrefl X.N.Rel := hN.toIrrefl;
   intro B;
   induction B generalizing i with
   | bot =>
     intro _;
     constructor;
-    . intro h; exact absurd h (by simp);
+    . intro h; exact h.elim;
     . intro _;
       simp only [Formula.interpret];
       cl_prover;
@@ -210,16 +210,16 @@ private lemma mainlemma_aux {i : X.N.World} (hi : X.N.root.1 ≠ i) :
     intro _;
     constructor;
     . intro h;
-      apply right_Fdisj'!_intro;
-      simpa using h;
+      apply right_Fdisj'_intro;
+      grind;
     . intro h;
-      apply CN!_of_CN!_right;
-      apply left_Fdisj'!_intro;
+      apply CN_of_CN_right;
+      apply left_Fdisj'_intro;
       intro j hj;
       apply S.SC1;
       rintro rfl;
       apply h;
-      simpa using hj;
+      grind;
   | imp B C ihB ihC =>
     intro hBC;
     have hBm : B ∈ A.subfmls := Formula.subfmls_trans hBC Formula.mem_subfmls_imp_left;
@@ -228,11 +228,11 @@ private lemma mainlemma_aux {i : X.N.World} (hi : X.N.root.1 ≠ i) :
     constructor;
     . intro h;
       rcases Model.World.forces_imp.mp h with (hB | hC);
-      . exact C!_trans ((ihB hi hBm).2 hB) CNC!;
-      . exact C!_trans ((ihC hi hCm).1 hC) implyK!;
+      . exact C_trans ((ihB hi hBm).2 hB) CNC;
+      . exact C_trans ((ihC hi hCm).1 hC) implyK;
     . intro h;
       obtain ⟨hB, hC⟩ := Model.World.not_forces_imp.mp h;
-      exact not_imply_prem''! ((ihB hi hBm).1 hB) ((ihC hi hCm).2 hC);
+      exact CNC_of_C_of_CN ((ihB hi hBm).1 hB) ((ihC hi hCm).2 hC);
   | box B ihB =>
     intro hBox;
     have hBm : B ∈ A.subfmls := Formula.subfmls_trans hBox Formula.mem_subfmls_box;
@@ -245,26 +245,26 @@ private lemma mainlemma_aux {i : X.N.World} (hi : X.N.root.1 ≠ i) :
       by_cases hir : i = X.rN;
       . -- `i = r`: use `SC3r` and the reflexivity of `r`.
         subst hir;
-        apply C!_trans S.SC3r;
+        apply C_trans S.SC3r;
         apply 𝔅.mono';
         have hrB : X.rN ⊩[X.N.toModel] B := by
           have h₁ : X.r ⊩[X.toModel] (□B) 🡒 B := Model.World.forces_fconj.mp X.r_reflexive _
             (Finset.mem_image_of_mem _ (FormulaFinset.iff_mem_prebox_mem.mpr hBox));
           have h₂ : X.r ⊩[X.toModel] □B := same_forces_embed.mp h;
           exact same_forces_embed.mpr (h₁ h₂);
-        apply left_A!_intro;
+        apply left_A_intro;
         . exact (ihB rN_ne_root hBm).1 hrB;
-        . apply left_Fdisj'!_intro;
+        . apply left_Fdisj'_intro;
           rintro j Rij;
-          replace Rij : X.rN ≺ j := by simpa using Rij;
+          replace Rij : X.rN ≺ j := by grind;
           exact (ihB (hne_root_of_rel Rij) hBm).1 (Model.World.forces_box.mp h j Rij);
       . -- `i ≠ r`: use `SC3`; the successors of `i` may include `r`, but the inductive
         -- hypothesis applies there as well.
-        apply C!_trans (S.SC3 i hi (Ne.symm hir));
+        apply C_trans (S.SC3 i hi (Ne.symm hir));
         apply 𝔅.mono';
-        apply left_Fdisj'!_intro;
+        apply left_Fdisj'_intro;
         rintro j Rij;
-        replace Rij : i ≺ j := by simpa using Rij;
+        replace Rij : i ≺ j := by grind;
         exact (ihB (hne_root_of_rel Rij) hBm).1 (Model.World.forces_box.mp h j Rij);
     . intro h;
       obtain ⟨j, Rij, hB⟩ := Model.World.not_forces_box.mp h;
@@ -287,8 +287,8 @@ private lemma mainlemma_aux {i : X.N.World} (hi : X.N.root.1 ≠ i) :
             exact Std.Irrefl.irrefl _ (this ▸ X.r_rel_r₁);
         . exact ⟨j, Rij, hB, hjr⟩;
       have : T₀ ⊢ 𝔅.dia (S.Λ j') 🡒 ∼(𝔅 (B.interpret S.realization 𝔅)) :=
-        contra! $ 𝔅.mono' $ CN!_of_CN!_right $ (ihB (hne_root_of_rel Rij') hBm).2 hB';
-      exact C!_trans (S.SC2 i j' Rij' hj'r) this;
+        contra $ 𝔅.mono' $ CN_of_CN_right $ (ihB (hne_root_of_rel Rij') hBm).2 hB';
+      exact C_trans (S.SC2 i j' Rij' hj'r) this;
 
 theorem mainlemma {i : X.N.World} (hi : X.N.root.1 ≠ i) {B : _root_.Formula α}
     (hB : B ∈ A.subfmls) : i ⊩[_] B → T₀ ⊢ S.Λ i 🡒 (B.interpret S.realization 𝔅) :=
@@ -321,7 +321,7 @@ private lemma provable_boxItr_bot_mono {n m : ℕ} (h : n ≤ m) : T₀ ⊢ 𝔅
     cl_prover;
   | succ m ih =>
     rcases Nat.lt_succ_iff_lt_or_eq.mp (Nat.lt_succ_of_le h) with h' | rfl;
-    . exact C!_trans (ih (by omega)) provable_boxItr_bot_succ;
+    . exact C_trans (ih (by omega)) provable_boxItr_bot_succ;
     . cl_prover;
 
 /--
@@ -336,9 +336,9 @@ lemma provable_boxItr_bot_of_ne (S : 𝔅.ModifiedSolovaySentences X σ) :
       T₀ ⊢ S.Λ (embed z) 🡒 𝔅^[Model.World.rank z + 1] ⊥ := by
   -- By induction along the converse well-founded relation, using `SC3` (such a `z` is
   -- never the root of `X.N` nor `r`, and its successors are again such worlds).
-  haveI := X.isFiniteGL;
-  haveI hGL : X.IsGL := inferInstance;
-  haveI : IsConverseWellFounded X.World X.Rel := hGL.toIsConverseWellFounded;
+  have := X.isFiniteGL;
+  have hGL : X.IsGL := inferInstance;
+  have : IsConverseWellFounded X.World X.Rel := hGL.toIsConverseWellFounded;
   intro z;
   apply WellFounded.induction this.cwf z;
   intro z ih hzb hzr;
@@ -351,16 +351,16 @@ lemma provable_boxItr_bot_of_ne (S : 𝔅.ModifiedSolovaySentences X σ) :
       exact this.symm;
   have h₂ : T₀ ⊢ (⩖ j ∈ { j : X.N.World | embed z ≺ j }, S.Λ j)
       🡒 𝔅^[Model.World.rank z] ⊥ := by
-    apply left_Fdisj'!_intro;
+    apply left_Fdisj'_intro;
     intro j hj;
-    replace hj : embed z ≺ j := by simpa using hj;
+    replace hj : embed z ≺ j := by grind;
     obtain ⟨y, rfl⟩ := exists_original_of_embed_rel hj;
     replace hj : z ≺ y := rel_embed_embed_iff_rel.mp hj;
     have hyb : y ≠ X.root.1 := fun hc => RootedModel.not_rel_root (hc ▸ hj);
     have hyr : y ≠ X.r := fun hc => hzb (X.rel_r z (hc ▸ hj));
-    exact C!_trans (ih y hj hyb hyr)
+    exact C_trans (ih y hj hyb hyr)
       (provable_boxItr_bot_mono (by have := Model.rank_lt_of_rel hj; omega));
-  simpa only [Function.iterate_succ_apply'] using C!_trans h₁ (𝔅.mono' h₂);
+  simpa only [Function.iterate_succ_apply'] using C_trans h₁ (𝔅.mono' h₂);
 
 /--
   Provably in `T₀`, if `T` is `rank r`-times consistent while `σ` is provable but
@@ -373,7 +373,7 @@ lemma provable_b (S : 𝔅.ModifiedSolovaySentences X σ) :
       ((∼σ : FirstOrder.Sentence L)) 🡒 S.Λ (embed X.root.1) := by
   -- Combines `SC4` with `SC5` (excluding the new root), `SC6` (excluding `r`) and
   -- Lemma 1.7 (excluding every other world except `b`).
-  haveI := X.isFiniteGL;
+  have := X.isFiniteGL;
   have hall : ∀ j : X.N.World,
       T₀ ⊢ S.Λ j 🡒 (((∼(𝔅^[Model.World.rank X.r] ⊥)) : FirstOrder.Sentence L) 🡒 (𝔅 σ) 🡒
         ((∼σ : FirstOrder.Sentence L)) 🡒 S.Λ (embed X.root.1)) := by
@@ -387,7 +387,7 @@ lemma provable_b (S : 𝔅.ModifiedSolovaySentences X σ) :
           have h₆ : T₀ ⊢ ((∼σ : FirstOrder.Sentence L)) 🡒 ∼(S.Λ (embed X.r)) := S.SC6;
           cl_prover [h₆];
         . have h₇ : T₀ ⊢ S.Λ (embed z) 🡒 𝔅^[Model.World.rank X.r] ⊥ :=
-            C!_trans (S.provable_boxItr_bot_of_ne z hzb hzr)
+            C_trans (S.provable_boxItr_bot_of_ne z hzb hzr)
               (provable_boxItr_bot_mono (X.rank_lt_rank_r z hzb hzr));
           cl_prover [h₇];
     . have h₅ : T₀ ⊢ (𝔅 σ) 🡒 ∼(S.Λ X.N.root.1) := S.SC5;
@@ -395,7 +395,7 @@ lemma provable_b (S : 𝔅.ModifiedSolovaySentences X σ) :
   have hdisj : T₀ ⊢ (⩖ j, S.Λ j) 🡒
       (((∼(𝔅^[Model.World.rank X.r] ⊥)) : FirstOrder.Sentence L) 🡒
       (𝔅 σ) 🡒 ((∼σ : FirstOrder.Sentence L)) 🡒 S.Λ (embed X.root.1)) := by
-    apply left_Udisj!_intro;
+    apply left_Udisj_intro;
     intro j;
     exact hall j;
   exact hdisj ⨀ S.SC4;
@@ -411,7 +411,7 @@ theorem reflection (S : 𝔅.ModifiedSolovaySentences X σ) :
     T₀ ⊢ 𝔅.conItr (Model.World.rank X.r) 🡒
       (A.interpret S.realization 𝔅) 🡒 ((𝔅 σ) 🡒 σ) := by
   -- Combines Lemma 1.8 with Lemma 2 at the old root (which refutes `A`).
-  haveI := X.isFiniteGL;
+  have := X.isFiniteGL;
   have h₁ := S.provable_b;
   have h₂ : T₀ ⊢ S.Λ (embed X.root.1) 🡒 ∼(A.interpret S.realization 𝔅) :=
     S.mainlemma_neg b_ne_root Formula.mem_subfmls_self
@@ -420,28 +420,28 @@ theorem reflection (S : 𝔅.ModifiedSolovaySentences X σ) :
 
 end
 
-end LO.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences
+end FFL.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences
 
 
 noncomputable section
 
-namespace LO.FirstOrder.Arithmetic.Bootstrapping
+namespace FFL.FirstOrder.Arithmetic.Bootstrapping
 
 /-!
 ### Arithmetical construction of the modified Solovay sentences
 
 Port of the construction in `ProvabilityLogic.ProvabilityLogic.SolovaySentences`
-(`LO.FirstOrder.Arithmetic.Bootstrapping.SolovaySentences`), extended so that the limit
+(`FFL.FirstOrder.Arithmetic.Bootstrapping.SolovaySentences`), extended so that the limit
 also jumps from the old root `b` to the reflexive point `r` as soon as a witness of a
 fixed `𝚺₁` sentence `σ` is found. This realizes
-`LO.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences`.
+`FFL.FirstOrder.ProvabilityAbstraction.Provability.ModifiedSolovaySentences`.
 
 - [Bek90, Theorem 2 (§6)]
 -/
 
 namespace ModifiedSolovaySentences
 
-open LO LO.Entailment
+open FFL FFL.Entailment
 open Model Model.World
 open SolovaySentences (NegativeSuccessor negativeSuccessor WChain twoPointAux θChainAux θAux)
 
@@ -616,7 +616,7 @@ lemma rew_sigmaEmb (w : Fin N → FirstOrder.ArithmeticSemiterm Empty N') :
   the ordinary climb-vs-climb case).
 -/
 def jumpAux (t : X.N.World → FirstOrder.ArithmeticSemiterm Empty N) : ArithmeticSemisentence N :=
-  sigmaEmb σ ⋏ ⩕ k ∈ { k : X.N.World | X.b ≺ k ∧ k ≠ X.rN }, (witnessBeatsClimb T θ)/[t k]
+  sigmaEmb σ ⋏ ⩕ k ∈ { k : X.N.World | X.b ≺ k ∧ k ≠ X.rN }, (witnessBeatsClimb T θ).val/[t k]
 
 lemma rew_jumpAux (w : Fin N → FirstOrder.ArithmeticSemiterm Empty N') (t : X.N.World → FirstOrder.ArithmeticSemiterm Empty N) :
     Rew.subst w ▹ jumpAux T X σ θ t = jumpAux T X σ θ (fun i ↦ Rew.subst w (t i)) := by
@@ -632,7 +632,7 @@ def modifiedTwoPointAux (t : X.N.World → FirstOrder.ArithmeticSemiterm Empty N
   if j = X.rN then
     (if i = X.b then jumpAux T X σ θ t else ⊥)
   else
-    (climbAux T X t i j) ⋏ (if i = X.b then (climbBeatsWitness T θ)/[t j] else ⊤)
+    (climbAux T X t i j) ⋏ (if i = X.b then (climbBeatsWitness T θ).val/[t j] else ⊤)
 
 lemma rew_modifiedTwoPointAux (w : Fin N → FirstOrder.ArithmeticSemiterm Empty N') (t : X.N.World → FirstOrder.ArithmeticSemiterm Empty N) (i j : X.N.World) :
     Rew.subst w ▹ modifiedTwoPointAux T X σ θ t i j = modifiedTwoPointAux T X σ θ (fun i ↦ Rew.subst w (t i)) i j := by
@@ -684,11 +684,13 @@ def modifiedθAux (t : X.N.World → FirstOrder.ArithmeticSemiterm Empty N) (i :
 
 lemma rew_modifiedθAux (w : Fin N → FirstOrder.ArithmeticSemiterm Empty N') (t : X.N.World → FirstOrder.ArithmeticSemiterm Empty N) (i : X.N.World) :
     Rew.subst w ▹ modifiedθAux T X σ θ t i = modifiedθAux T X σ θ (fun i ↦ Rew.subst w (t i)) i := by
-  simp [Finset.map_udisj, modifiedθAux, rew_modifiedθChainAux]
+  simp only [modifiedθAux, Finset.map_udisj, rew_modifiedθChainAux];
 
 lemma modifiedθAux_sigma1 (hσ : Hierarchy 𝚺 1 σ) (t : X.N.World → FirstOrder.ArithmeticSemiterm Empty N) (i : X.N.World) :
     Hierarchy 𝚺 1 (modifiedθAux T X σ θ t i) := by
-  simp [modifiedθAux, modifiedθChainAux_sigma1 T X σ θ hσ]
+  simp only [modifiedθAux, Hierarchy.finset_udisj_iff];
+  intro ε;
+  exact modifiedθChainAux_sigma1 T X σ θ hσ _ _;
 
 /--
   The arithmetical fixed-point realizing the modified Solovay sentences. Besides the
@@ -699,11 +701,11 @@ lemma modifiedθAux_sigma1 (hσ : Hierarchy 𝚺 1 σ) (t : X.N.World → FirstO
 
   - [Bek90, Theorem 2 (§6)]
 -/
-def _root_.LO.FirstOrder.Theory.modifiedSolovay (i : X.N.World) : ArithmeticSentence := exclusiveMultifixedpoint
+def _root_.FFL.FirstOrder.Theory.modifiedSolovay (i : X.N.World) : ArithmeticSentence := exclusiveMultifixedpoint
   (fun j ↦
     let jj := (Fintype.equivFin X.N.World).symm j
     (modifiedθAux T X σ θ (fun i ↦ #(Fintype.equivFin X.N.World i)) jj) ⋏
-      (⩕ k ∈ { k : X.N.World | jj ≺ k ∧ k ≠ X.rN }, T.consistentWith/[#(Fintype.equivFin X.N.World k)]) ⋏
+      (⩕ k ∈ { k : X.N.World | jj ≺ k ∧ k ≠ X.rN }, T.consistentWith.val/[#(Fintype.equivFin X.N.World k)]) ⋏
       (if jj = X.b then ∼(sigmaEmb σ) else ⊤))
   (Fintype.equivFin X.N.World i)
 
@@ -724,19 +726,19 @@ def modifiedθ (i : X.N.World) : ArithmeticSentence := modifiedθAux T X σ θ (
 /-- The diagonal fixed-point equation defining `T.modifiedSolovay`. -/
 lemma modifiedSolovay_diag (i : X.N.World) :
     𝗜𝚺₁ ⊢ (T.modifiedSolovay X σ θ i) 🡘
-      ((modifiedθ T X σ θ i) ⋏ (⩕ j ∈ { j : X.N.World | i ≺ j ∧ j ≠ X.rN }, T.consistentWith/[⌜T.modifiedSolovay X σ θ j⌝]) ⋏
+      ((modifiedθ T X σ θ i) ⋏ (⩕ j ∈ { j : X.N.World | i ≺ j ∧ j ≠ X.rN }, T.consistentWith.val/[⌜T.modifiedSolovay X σ θ j⌝]) ⋏
         (if i = X.b then ∼(sigmaEmb σ) else ⊤)) := by
   have : 𝗜𝚺₁ ⊢ (T.modifiedSolovay X σ θ i) 🡘
       (Rew.subst fun j ↦ ⌜T.modifiedSolovay X σ θ ((Fintype.equivFin X.N.World).symm j)⌝) ▹
         ((modifiedθAux T X σ θ (fun i ↦ #(Fintype.equivFin X.N.World i)) i) ⋏
-          (⩕ k ∈ { k : X.N.World | i ≺ k ∧ k ≠ X.rN }, T.consistentWith/[#(Fintype.equivFin X.N.World k)]) ⋏
+          (⩕ k ∈ { k : X.N.World | i ≺ k ∧ k ≠ X.rN }, T.consistentWith.val/[#(Fintype.equivFin X.N.World k)]) ⋏
           (if i = X.b then ∼(sigmaEmb σ) else ⊤)) := by
     simpa [Theory.modifiedSolovay, Matrix.comp_vecCons', Matrix.constant_eq_singleton] using!
       exclusiveMultidiagonal (T := 𝗜𝚺₁) (i := Fintype.equivFin X.N.World i)
         (fun j ↦
           let jj := (Fintype.equivFin X.N.World).symm j
           (modifiedθAux T X σ θ (fun i ↦ #(Fintype.equivFin X.N.World i)) jj) ⋏
-            (⩕ k ∈ { k : X.N.World | jj ≺ k ∧ k ≠ X.rN }, T.consistentWith/[#(Fintype.equivFin X.N.World k)]) ⋏
+            (⩕ k ∈ { k : X.N.World | jj ≺ k ∧ k ≠ X.rN }, T.consistentWith.val/[#(Fintype.equivFin X.N.World k)]) ⋏
             (if jj = X.b then ∼(sigmaEmb σ) else ⊤))
   simpa [modifiedθ, Finset.map_conj', Function.comp_def, rew_modifiedθAux, rew_sigmaEmb, ←TransitiveRewriting.comp_app,
     Rew.subst_comp_subst, Matrix.comp_vecCons', Matrix.constant_eq_singleton, apply_ite] using! this
@@ -765,7 +767,7 @@ def ModifiedStep (i j : X.N.World) : Prop :=
 @[simp] lemma val_modifiedTwoPoint (i j : X.N.World) :
     V ⊧/![] (modifiedTwoPoint T X σ θ i j) ↔ ModifiedStep T X σ θ (V := V) i j := by
   unfold modifiedTwoPoint modifiedTwoPointAux ModifiedStep;
-  split_ifs <;> simp [climbAux, jumpAux, sigmaEmb] <;> tauto
+  split_ifs <;> simp [climbAux, jumpAux, sigmaEmb] <;> grind
 
 variable (V)
 
@@ -777,7 +779,7 @@ inductive ModifiedΘChain : List X.N.World → Prop where
 def ModifiedΘ (i : X.N.World) : Prop :=
   ∃ ε : List X.N.World, ε.ChainI (fun x y ↦ y ≺ x) i X.N.root.1 ∧ ModifiedΘChain T X σ θ V ε
 
-def _root_.LO.FirstOrder.Theory.ModifiedSolovay (i : X.N.World) : Prop :=
+def _root_.FFL.FirstOrder.Theory.ModifiedSolovay (i : X.N.World) : Prop :=
   ModifiedΘ T X σ θ V i ∧
     (∀ j, i ≺ j → j ≠ X.rN → T.ConsistentWith (⌜T.modifiedSolovay X σ θ j⌝ : V)) ∧
     (i = X.b → ¬(V ⊧/![] σ))
@@ -847,15 +849,15 @@ lemma ModifiedΘChain.append_iff {ε₁ ε₂ : List X.N.World} {i : X.N.World} 
   suffices
       (∃ ε, List.ChainI (fun x y ↦ y ≺ x) i X.N.root.1 ε ∧ V ⊧/![] (modifiedθChain T X σ θ ε)) ↔
       ModifiedΘ T X σ θ V i by
-    simpa [-val_modifiedθChain, modifiedθ, modifiedθAux] using! this
+    simp only [modifiedθ, modifiedθAux, Finset.map_udisj_prop];
+    simpa [-val_modifiedθChain] using! this
   simp [ModifiedΘ]
 
 @[simp] lemma val_modifiedSolovay {i : X.N.World} :
     V ⊧/![] (T.modifiedSolovay X σ θ i) ↔ T.ModifiedSolovay X σ θ V i := by
+  have h := consequence_iff.mp (Theory.Proof.sound (modifiedSolovay_diag T X σ θ i)) V inferInstance;
   unfold Theory.ModifiedSolovay;
-  by_cases hb : i = X.b <;>
-    simpa [models_iff, hb, sigmaEmb] using!
-      consequence_iff.mp (Theory.Proof.sound (modifiedSolovay_diag T X σ θ i)) V inferInstance
+  by_cases hb : i = X.b <;> simp [models_iff, hb, sigmaEmb] at h ⊢ <;> grind
 
 /-- **Condition SC2.** -/
 lemma Modified.consistent {i j : X.N.World} (hij : i ≺ j) (hjr : j ≠ X.rN) :
@@ -1005,9 +1007,9 @@ lemma ModifiedΘ.disjunction [𝗜𝚺₁ ⪯ T] (_hσ : Hierarchy 𝚺 1 σ)
     (hθσ : V ⊧/![] σ ↔ ∃ w, V ⊧/![w] θ.val)
     (i : X.N.World) : ModifiedΘ T X σ θ V i →
     T.ModifiedSolovay X σ θ V i ∨ ∃ j, i ≺ j ∧ T.ModifiedSolovay X σ θ V j := by
-  haveI := X.isFiniteGL;
-  haveI hN : X.N.IsGL := (inferInstance : (X.extendRoot 1).IsGL);
-  haveI : IsTrans X.N.World X.N.Rel := hN.toIsTrans;
+  have := X.isFiniteGL;
+  have hN : X.N.IsGL := (inferInstance : (X.extendRoot 1).IsGL);
+  have : IsTrans X.N.World X.N.Rel := hN.toIsTrans;
   have hcwf : IsConverseWellFounded X.N.World X.N.Rel := hN.toIsConverseWellFounded;
   apply WellFounded.induction hcwf.cwf i;
   intro i ih hΘ;
@@ -1060,10 +1062,10 @@ lemma ModifiedΘ.disjunction [𝗜𝚺₁ ⪯ T] (_hσ : Hierarchy 𝚺 1 σ)
             exact ⟨k₀, hk₀, hk₀r, by simpa [Theory.ConsistentWith.quote_iff] using! hk₀c,
               fun hc ↦ absurd hc hib⟩;
         obtain ⟨k₀, hik₀, hk₀r, hk₀prov, hk₀cbs⟩ := hex;
-        haveI hfin : Fintype X.N.World := inferInstance;
-        haveI hfinite : Finite X.N.World := Fintype.finite hfin;
-        haveI : Finite {k : X.N.World // i ≺ k ∧ k ≠ X.rN} := Subtype.finite;
-        haveI := Fintype.ofFinite {k : X.N.World // i ≺ k ∧ k ≠ X.rN};
+        have hfin : Fintype X.N.World := inferInstance;
+        have hfinite : Finite X.N.World := Fintype.finite hfin;
+        have : Finite {k : X.N.World // i ≺ k ∧ k ≠ X.rN} := Subtype.finite;
+        have := Fintype.ofFinite {k : X.N.World // i ≺ k ∧ k ≠ X.rN};
         obtain ⟨⟨j, hij, hjr⟩, hbest⟩ :=
           ProvabilityComparison.find_minimal_proof_fintype (T := T) (V := V)
             (ι := {k : X.N.World // i ≺ k ∧ k ≠ X.rN}) (i := ⟨k₀, hik₀, hk₀r⟩)
@@ -1123,7 +1125,9 @@ lemma Modified.box_disjunction [𝗜𝚺₁ ⪯ T] (hσ : Hierarchy 𝚺 1 σ)
       have : 𝗜𝚺₁ ⊢ (modifiedθ T X σ θ i) 🡒
           ((T.modifiedSolovay X σ θ i) ⋎ (⩖ j ∈ {j : X.N.World | i ≺ j}, T.modifiedSolovay X σ θ j)) :=
         complete _ _ fun (V : Type) _ _ ↦ by
-          simpa [models_iff] using! ModifiedΘ.disjunction hσ (hθσ V) i
+          have h := ModifiedΘ.disjunction (T := T) hσ (hθσ V) i;
+          simp [models_iff] at h ⊢;
+          grind
       exact Entailment.WeakerThan.pbl this
   have Tθ : T.internalize V ⊢ ⌜modifiedθ T X σ θ i⌝ :=
     Bootstrapping.Arithmetic.sigma_one_provable_of_models T
@@ -1135,7 +1139,7 @@ lemma Modified.box_disjunction [𝗜𝚺₁ ⪯ T] (hσ : Hierarchy 𝚺 1 σ)
   have hn : T.internalize V ⊢ (∼⌜T.modifiedSolovay X σ θ i⌝ : Arithmetic.Bootstrapping.Formula V ℒₒᵣ) := by
     simpa using! (tprovable_tquote_iff_provable_quote (T := T)).mpr (Modified.refute ne ner hS)
   have hd : T.internalize V ⊢ ⌜⩖ j ∈ {j : X.N.World | i ≺ j}, T.modifiedSolovay X σ θ j⌝ :=
-    Entailment.of_a!_of_n! hP hn
+    Entailment.of_A_of_N hP hn
   exact (tprovable_tquote_iff_provable_quote (T := T)).mp hd
 
 /-- **Condition SC3r**: at `r`, the box-disjunction includes `r` itself, since the
@@ -1152,7 +1156,9 @@ lemma Modified.box_disjunction_rN [𝗜𝚺₁ ⪯ T] (hσ : Hierarchy 𝚺 1 σ
       have : 𝗜𝚺₁ ⊢ (modifiedθ T X σ θ X.rN) 🡒
           ((T.modifiedSolovay X σ θ X.rN) ⋎ (⩖ j ∈ {j : X.N.World | X.rN ≺ j}, T.modifiedSolovay X σ θ j)) :=
         complete _ _ fun (V : Type) _ _ ↦ by
-          simpa [models_iff] using! ModifiedΘ.disjunction hσ (hθσ V) X.rN
+          have h := ModifiedΘ.disjunction (T := T) hσ (hθσ V) X.rN;
+          simp [models_iff] at h ⊢;
+          grind
       exact Entailment.WeakerThan.pbl this
   have Tθ : T.internalize V ⊢ ⌜modifiedθ T X σ θ X.rN⌝ :=
     Bootstrapping.Arithmetic.sigma_one_provable_of_models T
@@ -1210,31 +1216,24 @@ lemma Modified.provable_sigma_imp_not_root [𝗜𝚺₁ ⪯ T] :
 
 /--
   The modified Solovay construction, realized for a `𝚺₁` sentence `σ`: the witness
-  formula `θ` is obtained from `exists_delta0_witness_form` applied to `σ` (viewed as a
-  `𝚺₁`-formula with no free variables), and the resulting family of modified Solovay
-  sentences `T.modifiedSolovay X σ θ` satisfies all the conditions `SC1`–`SC6` by the
-  lemmas above.
+  formula `θ` is the `𝚺₀`-matrix of a prenex normal form of `σ`, and the resulting
+  family of modified Solovay sentences `T.modifiedSolovay X σ θ` satisfies all the
+  conditions `SC1`–`SC6` by the lemmas above.
 
   - [Bek90, Theorem 2 (§6)]
 -/
-noncomputable def _root_.LO.FirstOrder.Theory.standardProvability.modifiedSolovaySentences
+noncomputable def _root_.FFL.FirstOrder.Theory.standardProvability.modifiedSolovaySentences
     (T : ArithmeticTheory) [T.Δ₁] [𝗜𝚺₁ ⪯ T]
     (X : StrongReflexiveCountermodel κ A) {σ : FirstOrder.ArithmeticSentence}
     (hσ : Hierarchy 𝚺 1 σ) :
     T.standardProvability.ModifiedSolovaySentences X σ :=
-  have hex := exists_delta0_witness_form (n := 0) (φ := σ) hσ;
-  let θraw := hex.choose;
-  have hθraw : Hierarchy 𝚺 0 θraw := hex.choose_spec.1;
-  have hval := hex.choose_spec.2;
-  let θ : 𝚫₀.Semisentence 1 :=
-    HierarchySymbol.Semiformula.ofZero (HierarchySymbol.Semiformula.mkPolarity θraw 𝚺 hθraw) 𝚫₀;
-  have hθval : θ.val = θraw := by
-    show (HierarchySymbol.Semiformula.mkPolarity θraw 𝚺 hθraw).val = θraw;
-    exact HierarchySymbol.Semiformula.val_mkPolarity θraw hθraw;
+  have hex := ISigma1.exists_matrix_provable_of_sentence hσ;
+  let θ : 𝚫₀.Semisentence 1 := HierarchySymbol.Semiformula.ofZero hex.choose 𝚫₀;
   have hθσ :
       ∀ (V : Type) [ORingStructure V] [V↓[ℒₒᵣ] ⊧* 𝗜𝚺₁],
         V ⊧/![] σ ↔ ∃ w, V ⊧/![w] θ.val := fun V _ _ ↦ by
-    rw [hθval]; exact hval V ![];
+    have := consequence_iff.mp (Theory.Proof.sound hex.choose_spec) V inferInstance;
+    simpa [models_iff, θ] using this;
   { Λ := T.modifiedSolovay X σ θ
     SC1 := fun _ _ ne ↦ complete _ _ fun (V : Type) _ _ ↦ by
       simpa [models_iff] using! Modified.exclusive (T := T) (X := X) (σ := σ) (θ := θ) ne
@@ -1254,7 +1253,7 @@ end model
 
 end ModifiedSolovaySentences
 
-end LO.FirstOrder.Arithmetic.Bootstrapping
+end FFL.FirstOrder.Arithmetic.Bootstrapping
 
 end
 

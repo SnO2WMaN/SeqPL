@@ -170,7 +170,7 @@ namespace Ext1
 
 lemma eq_original_or_eq_root (x : (M.extendRoot 1).World) : (∃ x₀ : M.World, x = x₀) ∨ x = (M.extendRoot 1).root := by
   match x with
-  | .inl x => simp [embed];
+  | .inl x => exact .inl ⟨x, rfl⟩;
   | .inr i =>
     right;
     have h : (i : ℕ) < 1 := PNat.one_coe ▸ i.2;

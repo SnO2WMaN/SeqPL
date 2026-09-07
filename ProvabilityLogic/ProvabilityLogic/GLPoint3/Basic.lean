@@ -6,8 +6,8 @@ public import ProvabilityLogic.ProvabilityLogic.Classification.GeneralTrace
 @[expose] public section
 
 open Classical
-open LO
-open LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.FirstOrder.ProvabilityAbstraction
 open LetterlessFormula (spectrum)
 
 variable {α : Type u}
@@ -22,7 +22,7 @@ assertion* is provable in `𝗣𝗔`.
 - [VS83, §1, Theorem 1]
 -/
 
-namespace LO.FirstOrder.ProvabilityAbstraction
+namespace FFL.FirstOrder.ProvabilityAbstraction
 
 variable {L : FirstOrder.Language} [L.ReferenceableBy L] {T₀ T : FirstOrder.Theory L}
 
@@ -43,7 +43,7 @@ inductive Provability.IsConsistencyAssertion (𝔅 : Provability T₀ T) : First
   | or {σ τ}  : IsConsistencyAssertion 𝔅 σ → IsConsistencyAssertion 𝔅 τ → IsConsistencyAssertion 𝔅 (σ ⋎ τ)
   | imp {σ τ} : IsConsistencyAssertion 𝔅 σ → IsConsistencyAssertion 𝔅 τ → IsConsistencyAssertion 𝔅 (σ 🡒 τ)
 
-end LO.FirstOrder.ProvabilityAbstraction
+end FFL.FirstOrder.ProvabilityAbstraction
 
 section
 
@@ -135,7 +135,7 @@ lemma LetterlessFormula.IsConsistencyForm.exists_consistencyAssertion {A : Lette
     obtain ⟨σ₂, hσ₂, e₂⟩ := ih₂;
     use σ₁ ⋏ σ₂, .and hσ₁ hσ₂;
     dsimp [LetterlessFormula.interpret];
-    exact LO.Entailment.E!_trans (LO.Entailment.EKK!_of_E!_of_E! e₁ e₂) (by cl_prover);
+    exact FFL.Entailment.E_trans (FFL.Entailment.EKK_of_E_of_E e₁ e₂) (by cl_prover);
   | or _ _ ih₁ ih₂ =>
     obtain ⟨σ₁, hσ₁, e₁⟩ := ih₁;
     obtain ⟨σ₂, hσ₂, e₂⟩ := ih₂;
@@ -178,7 +178,7 @@ lemma Provability.IsConsistencyAssertion.exists_consistencyForm {σ : FirstOrder
     obtain ⟨B, hB, e₂⟩ := ih₂;
     use A ⋏ B, .and hA hB;
     dsimp [LetterlessFormula.interpret];
-    exact LO.Entailment.E!_trans (LO.Entailment.EKK!_of_E!_of_E! e₁ e₂) (by cl_prover);
+    exact FFL.Entailment.E_trans (FFL.Entailment.EKK_of_E_of_E e₁ e₂) (by cl_prover);
   | or _ _ ih₁ ih₂ =>
     obtain ⟨A, hA, e₁⟩ := ih₁;
     obtain ⟨B, hB, e₂⟩ := ih₂;
@@ -247,7 +247,7 @@ injective. -/
 lemma RootedModel.eq_of_rank_eq {M : RootedModel κ α} [Fintype M.World] [M.IsFiniteGLPoint3]
   {x y : M.World} (h : x.rank = y.rank) : x = y := by
   -- Any two distinct worlds are comparable (linearity), hence have distinct ranks.
-  by_contra! ne;
+  by_contra ne;
   suffices x ≺ y ∨ y ≺ x by grind [Model.rank_lt_of_rel];
   by_cases hx : x ≠ M.root.1 <;>
   by_cases hy : y ≠ M.root.1;
@@ -381,7 +381,7 @@ theorem arithmetical_completeness_of_infinity_height [DecidableEq α] (height : 
   replace hA := LogicGLPoint3.iff_forces_root.not.mp hA;
   push Not at hA;
   obtain ⟨κ, _, M, _, hM⟩ := hA;
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   -- `H a`: the set of ranks at which the atom `a` is forced
   let H : α → Finset ℕ := fun a => (Finset.univ.filter fun y : M.World => y ⊩[_] (#a : Formula α)).image World.rank;
   -- `ψ*` of the paper: a consistency form whose spectrum is exactly `H a`
