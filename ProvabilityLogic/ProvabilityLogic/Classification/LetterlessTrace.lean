@@ -1,16 +1,10 @@
 module
 
-public import ProvabilityLogic.Logic.GL.Letterless
-public import ProvabilityLogic.Kripke.FiniteLineModel
-public import ProvabilityLogic.ToFoundation.Vorspiel.Set.Basic
-public import ProvabilityLogic.Formula.Countable
-public import ProvabilityLogic.ProvabilityLogic.GL.Uniform
-public import ProvabilityLogic.ToFoundation.FirstOrder.Basic.Compactness
+public import ProvabilityLogic.Logic.GLAlpha.Basic
+public import ProvabilityLogic.Logic.GLBetaMinus.Basic
 
 @[expose]
 public section
-
-noncomputable abbrev TBBMinus [DecidableEq α] (X : Set ℕ) (X_finite : X.Finite := by grind) : Formula α := ∼⋀(X_finite.toFinset.image TBB)
 
 namespace LetterlessFormula
 
@@ -231,20 +225,19 @@ lemma spectrum_TFAE : [
   tfae_have 1 → 2 := by grind [Model.iff_forces_lift_rank_mem_spectrum];
   tfae_have 2 → 3 := by
     intro h;
-    use ULift.{u} (Fin (n + 1)), inferInstance, uLiftFiniteLineModel n (α := α), inferInstance, inferInstance;
-    constructor;
-    . exact uLiftFiniteLineModel.height_eq;
-    . apply h;
-      exact uLiftFiniteLineModel.height_eq;
+    have e : (finiteLineModel n α).World ≃ ULift.{u} (Fin (n + 1)) := Equiv.ulift.symm;
+    have h₁ : ((finiteLineModel n α).reindex e).height = n :=
+      RootedModel.height_reindex.trans finiteLineModel.height_eq;
+    use ULift.{u} (Fin (n + 1)), inferInstance, (finiteLineModel n α).reindex e, inferInstance,
+      inferInstance;
+    exact ⟨h₁, h _ h₁⟩;
   tfae_have 3 → 1 := by grind [Model.iff_forces_lift_rank_mem_spectrum];
   tfae_have 1 → 4 := by grind [Model.iff_forces_rank_mem_spectrum];
   tfae_have 4 → 5 := by
     intro h;
-    use Fin (n + 1), inferInstance, inferInstance, (finiteLineModel n).toModel, inferInstance, (finiteLineModel n).root.1;
-    constructor;
-    . exact finiteLineModel.height_eq;
-    . apply h;
-      exact finiteLineModel.height_eq;
+    use Fin (n + 1), inferInstance, inferInstance, (finiteLineModel n Empty).toModel, inferInstance,
+      (finiteLineModel n Empty).root.1;
+    exact ⟨finiteLineModel.height_eq, h _ _ finiteLineModel.height_eq⟩;
   tfae_have 5 → 1 := by grind [Model.iff_forces_rank_mem_spectrum];
   tfae_finish;
 
@@ -775,13 +768,6 @@ lemma iff_eq_sumQuasiNormal_eq_trace (hSR : (X.Singular T ∧ Y.Singular T) ∨ 
   apply Iff.trans $ iff_eq_sumQuasiNormal_eq_spectrum (α := α) hSR;
   simp [LetterlessFormulaSet.trace];
 
-abbrev LogicGLAlpha {α} (Alpha : Set ℕ) : Logic α := (@LogicGL α) +ᴸ ↑(Alpha.image $ TBB (α := Empty))
-/-- **Artemov's logic `A`** (also written `GLαω = GLα ω`): `GL` extended by all `TBB n`. -/
-abbrev LogicA {α} : Logic α := LogicGLAlpha Set.univ
-abbrev LogicGLBetaMinus {α} [DecidableEq α] (Beta : Set ℕ) (Beta_cofinite : Betaᶜ.Finite := by grind) : Logic α := (@LogicGL α) +ᴸ (LetterlessFormulaSet.lift { TBBMinus _ Beta_cofinite })
-
-
-
 namespace FormulaSet
 
 def Letterless {α} (X : FormulaSet α) : Prop := ∀ A ∈ X, A.Letterless
@@ -907,17 +893,17 @@ theorem letterless_provabilityLogic (X : LetterlessFormulaSet) :
     exact Logic.sumQuasiNormal.mdp (Logic.sumQuasiNormal.mem₁ ha) hb;
 
 omit [ℕ↓[ℒₒᵣ] ⊧* T] in
-theorem LogicGLAlpha.eq_provabilityLogicRelativeTo {Alpha : Set ℕ}
-  : LogicGLAlpha (α := α) Alpha = T.provabilityLogicRelativeTo (T ∪ (Alpha.image (λ i => LetterlessFormula.standardInterpret T (TBB i)))) := by
-  suffices (LetterlessFormula.standardInterpret T '' TBB '' Alpha) = (Alpha.image (λ i => LetterlessFormula.standardInterpret T (TBB i))) by
-    exact this ▸ (letterless_provabilityLogic (X := Alpha.image TBB));
+theorem LogicGLAlpha.eq_provabilityLogicRelativeTo {X : Set ℕ}
+  : LogicGLAlpha (α := α) X = T.provabilityLogicRelativeTo (T ∪ (X.image (λ i => LetterlessFormula.standardInterpret T (TBB i)))) := by
+  suffices (LetterlessFormula.standardInterpret T '' TBB '' X) = (X.image (λ i => LetterlessFormula.standardInterpret T (TBB i))) by
+    exact this ▸ (letterless_provabilityLogic (X := X.image TBB));
   ext i;
   simp;
 
 omit [ℕ↓[ℒₒᵣ] ⊧* T] in
 theorem LogicA.eq_provabilityLogicRelativeTo
-  : LogicA (α := α) = T.provabilityLogicRelativeTo (T ∪ (Set.univ.image (λ i => LetterlessFormula.standardInterpret T (TBB i)))) := by
-  apply LogicGLAlpha.eq_provabilityLogicRelativeTo;
+  : LogicGLAlpha (α := α) Set.univ = T.provabilityLogicRelativeTo (T ∪ (Set.univ.image (λ i => LetterlessFormula.standardInterpret T (TBB i)))) :=
+  LogicGLAlpha.eq_provabilityLogicRelativeTo
 
 end
 

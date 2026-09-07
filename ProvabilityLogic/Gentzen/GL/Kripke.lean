@@ -15,20 +15,6 @@ variable {κ : Type u} [Nonempty κ]
 
 open LogicGL
 
-namespace LogicGL
-
-abbrev trivial_GL_model {α} : Model (Fin 1) α where
-  Rel' := λ _ _ => False
-  Val' := λ _ _ => False
-
-instance : trivial_GL_model (α := α) |>.IsFiniteGL where
-  finite := inferInstance;
-  trans  := by tauto;
-  irrefl := by tauto;
-
-end LogicGL
-
-
 namespace Model.World
 
 variable {M : Model κ α} {x : M.World}
@@ -185,16 +171,15 @@ namespace Kripke
 
 open Model in
 theorem soundness (h : ⊢ᵍ[GL] S) : ∀ {κ}, [Nonempty κ] → ∀ M : Model κ α, [M.IsGL] → M ⊧ S := by
-  obtain ⟨p⟩ := h;
   intro _ M M_finiteGL;
-  induction p with
+  induction h with
   | axm A => exact validate_gentzen_axm
   | botL => exact validate_gentzen_botL
-  | wkL h _ ih => exact validate_gentzen_wkL ih;
-  | wkR h _ ih => exact validate_gentzen_wkR ih;
-  | impL _ _ ih₁ ih₂ => exact validate_gentzen_impL ih₁ ih₂
-  | impR _ ih => exact validate_gentzen_impR ih
-  | boxGL _ ih => exact validate_gentzen_boxGL ih
+  | wkL h h' ih => exact validate_gentzen_wkL ih;
+  | wkR h h' ih => exact validate_gentzen_wkR ih;
+  | impL h₁ h₂ ih₁ ih₂ => exact validate_gentzen_impL ih₁ ih₂
+  | impR h ih => exact validate_gentzen_impR ih
+  | boxGL h ih => exact validate_gentzen_boxGL ih
 
 theorem finite_soundness (h : ⊢ᵍ[GL] S) : ∀ {κ}, [Nonempty κ] → ∀ M : Model κ α, [M.IsFiniteGL] → M ⊧ S := λ _ _ M [M.IsFiniteGL] => soundness h M
 
@@ -203,7 +188,8 @@ end Kripke
 @[simp, grind .]
 theorem not_provable_empty : ⊬ᵍ[GL] (∅ ⟹ ∅ : Sequent α) := by
   by_contra h;
-  have : (0 : trivial_GL_model.World) ⊩[_] (∅ ⟹ ∅) := Kripke.finite_soundness h trivial_GL_model 0;
+  have : (0 : (Model.pointModel (α := α) (fun _ => False)).World) ⊩[_] (∅ ⟹ ∅) :=
+    Kripke.finite_soundness h _ 0;
   grind;
 
 end ProvableGentzen
@@ -549,6 +535,56 @@ theorem completeness {S : Sequent α} (h : ∀ {κ : Type v}, [Nonempty κ] → 
     . intro D hD; exact truthlemma_suc $ ExpandedSequent.subset_lindenbaum.2 hD;
 
 end Kripke
+
+end ProvableGentzen
+
+
+namespace ProvableGentzen
+
+variable {S : Sequent α} {A B : Formula α} {Γ : FormulaFinset α}
+
+/-- Cut-elimination: any sequent provable with the cut rule (`⊢ᵍᶜ[GL]`) is also provable without it (`⊢ᵍ[GL]`). -/
+theorem of_with_cut {S : Sequent α} : ⊢ᵍᶜ[GL] S → ⊢ᵍ[GL] S := by
+  intro h;
+  induction h using GentzenWithCutProvable.rec with
+  | axm A => exact ProvableGentzen.axm A
+  | botL => exact ProvableGentzen.botL
+  | wkL _ h ih => exact ProvableGentzen.wkL ih h
+  | wkR _ h ih => exact ProvableGentzen.wkR ih h
+  | impL _ _ ih₁ ih₂ => exact ProvableGentzen.impL ih₁ ih₂
+  | impR _ ih => exact ProvableGentzen.impR ih
+  | boxGL _ ih => exact ProvableGentzen.boxGL ih
+  | cut _ _ ih₁ ih₂ =>
+    -- The cut rule has no direct syntactic elimination here; instead we argue
+    -- semantically via completeness, using soundness of both cut premises.
+    apply Kripke.completeness;
+    rintro κ _ M _ x;
+    have := Kripke.finite_soundness ih₁ M x;
+    have := Kripke.finite_soundness ih₂ M x;
+    grind;
+
+end ProvableGentzen
+
+alias GentzenWithCutProvable.cut_elimination := ProvableGentzen.of_with_cut
+
+namespace ProvableGentzen
+
+variable {S : Sequent α} {A B : Formula α} {Γ : FormulaFinset α}
+
+theorem mdp : ⊢ᵍ[GL] (∅ ⟹ {A 🡒 B}) → ⊢ᵍ[GL] (∅ ⟹ {A}) → ⊢ᵍ[GL] (∅ ⟹ {B}) := λ p q => by
+  replace p : ⊢ᵍᶜ[GL] (insert A ∅ ⟹ {B}) := GentzenWithCutProvable.of_without_cut $ deduction_theorem.mpr p;
+  replace q : ⊢ᵍᶜ[GL] (∅ ⟹ insert A ∅) := GentzenWithCutProvable.of_without_cut q;
+  exact GentzenWithCutProvable.cut_elimination $ GentzenWithCutProvable.cut q p;
+
+/-- Löb's rule is admissible in `ProofGentzen`. Proved via cut. -/
+theorem ruleLöb (h : ⊢ᵍ[GL] ((insert (□A) (Γ ∪ Γ.box)) ⟹ {A})) : ⊢ᵍ[GL] (Γ ∪ Γ.box ⟹ {A}) := by
+  apply of_with_cut
+  have h₁ : ⊢ᵍᶜ[GL] ((Γ ∪ Γ.box) ⟹ insert (□A) ∅) :=
+    GentzenWithCutProvable.wkR
+      (GentzenWithCutProvable.wkL (GentzenWithCutProvable.of_without_cut (boxGL h)) (by grind))
+      (by grind)
+  have h₂ : ⊢ᵍᶜ[GL] (insert (□A) (Γ ∪ Γ.box) ⟹ {A}) := GentzenWithCutProvable.of_without_cut h
+  simpa using GentzenWithCutProvable.cut h₁ h₂
 
 end ProvableGentzen
 

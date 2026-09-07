@@ -97,40 +97,6 @@ section
 variable [Nonempty κ] {M : Model κ α} [Fintype M.World] [M.IsGL]
 
 /--
-In a finite GL model, every world whose rank exceeds `Γ.card` has a strict successor
-forcing all axiom T instances `□B 🡒 B` for `B ∈ Γ`.
-
-- [AB05, Lemma 26]
--/
-lemma Model.exists_forces_axiomT_of_card_lt_rank [DecidableEq α] :
-    ∀ {n : ℕ} {Γ : FormulaFinset α}, Γ.card = n → ∀ {x : M.World}, n < x.rank →
-    ∃ z, x ≺ z ∧ ∀ B ∈ Γ, z ⊩[_] ((□B) 🡒 B) := by
-  intro n;
-  induction n with
-  | zero =>
-    intro Γ hΓ x hx;
-    obtain ⟨z, Rxz, _⟩ := Model.of_lt_rank hx;
-    exact ⟨z, Rxz, by simp [Finset.card_eq_zero.mp hΓ]⟩;
-  | succ n ih =>
-    intro Γ hΓ x hx;
-    obtain ⟨z, Rxz, hz⟩ := Model.of_lt_rank hx;
-    by_cases hall : ∀ B ∈ Γ, z ⊩[_] ((□B) 🡒 B);
-    . exact ⟨z, Rxz, hall⟩;
-    . push Not at hall;
-      obtain ⟨B₀, hB₀, hfail⟩ := hall;
-      obtain ⟨hbox, hnB⟩ := Model.World.not_forces_imp.mp hfail;
-      obtain ⟨z', Rzz', hz'⟩ := ih
-        (Γ := Γ.erase B₀) (by rw [Finset.card_erase_of_mem hB₀, hΓ]; rfl)
-        (x := z) (by omega);
-      use z', IsTrans.trans _ _ _ Rxz Rzz';
-      intro B hB;
-      by_cases hBB₀ : B = B₀;
-      . subst hBB₀;
-        intro _;
-        exact hbox z' Rzz';
-      . exact hz' B (Finset.mem_erase.mpr ⟨hBB₀, hB⟩);
-
-/--
 The chain lemma: `GL ⊢ ∼□^[m+1]⊥ 🡒 ◇⋀{□B 🡒 B | □B ∈ Sub(A)}` where `m` is the
 number of boxed subformulas of `A`, instantiated for use in GL soundness proofs.
 
@@ -144,7 +110,7 @@ lemma LogicGL.provable_neg_boxItr_bot_imp_dia_subfmlsS [DecidableEq α] {A : For
   replace hne : ¬(Model.World.rank M.root.1 < A.subfmls.prebox.card + 1) :=
     fun h => (Model.World.forces_neg.mp hne) (Model.iff_rank_lt_forces_boxItr_bot.mp h);
   obtain ⟨z, Rrz, hz⟩ := Model.exists_forces_axiomT_of_card_lt_rank
-    (Γ := A.subfmls.prebox) rfl (x := M.root.1) (by omega);
+    (Γ := A.subfmls.prebox) (x := M.root.1) (by omega);
   apply Model.World.forces_dia.mpr;
   use z, Rrz;
   apply Model.World.forces_fconj.mpr;
@@ -297,7 +263,7 @@ lemma LogicGL.eq_trace : (@LogicGL α).trace = ∅ := by
   grind [eq_LogicGL_quasiExtension_trace (α := α) (X := ∅) (by simp)];
 
 @[simp, grind =]
-lemma LogicGLAlpha.eq_trace {Alpha : Set ℕ} : (@LogicGLAlpha α Alpha).trace = Alpha := by
+lemma LogicGLAlpha.eq_trace {X : Set ℕ} : (@LogicGLAlpha α X).trace = X := by
   apply Eq.trans (eq_LogicGL_quasiExtension_trace (by grind));
   ext n;
   simp only [FormulaSet.trace, LetterlessFormulaSet.lift, Set.mem_iUnion,
@@ -318,8 +284,8 @@ lemma Formula.trace_lift {B : LetterlessFormula} :
   rw [Formula.iff_mem_trace, LetterlessFormula.iff_mem_trace_rootedModel];
 
 @[simp, grind =]
-lemma LogicGLBetaMinus.eq_trace [DecidableEq α] {Beta : Set ℕ} (hCf : Betaᶜ.Finite) :
-    (LogicGLBetaMinus Beta hCf : Logic α).trace = Beta := by
+lemma LogicGLBetaMinus.eq_trace [DecidableEq α] {X : Set ℕ} (hCf : Xᶜ.Finite) :
+    (LogicGLBetaMinus X hCf : Logic α).trace = X := by
   have hclosure : ∀ A ∈ (LetterlessFormulaSet.lift {TBBMinus _ hCf} : FormulaSet α), ∀ s,
       A⟦s⟧ ∈ (LetterlessFormulaSet.lift {TBBMinus _ hCf} : FormulaSet α) := by
     rintro A hA s;
@@ -329,15 +295,15 @@ lemma LogicGLBetaMinus.eq_trace [DecidableEq α] {Beta : Set ℕ} (hCf : Betaᶜ
   simp only [LetterlessFormulaSet.lift, Set.image_singleton, FormulaSet.trace_singleton,
     Formula.trace_lift, LetterlessFormula.trace_TBBMinus hCf, compl_compl];
 
-/-- `LogicGLBetaMinus` only depends on `Beta` (the finiteness proof of `Betaᶜ` is
+/-- `LogicGLBetaMinus` only depends on `X` (the finiteness proof of `Xᶜ` is
 irrelevant, by proof irrelevance). -/
-lemma LogicGLBetaMinus.congr [DecidableEq α] {Beta₁ Beta₂ : Set ℕ} (h : Beta₁ = Beta₂)
-    (hCf₁ : Beta₁ᶜ.Finite) (hCf₂ : Beta₂ᶜ.Finite) :
-    (LogicGLBetaMinus Beta₁ hCf₁ : Logic α) = LogicGLBetaMinus Beta₂ hCf₂ := by
+lemma LogicGLBetaMinus.congr [DecidableEq α] {X Y : Set ℕ} (h : X = Y)
+    (hCf₁ : Xᶜ.Finite) (hCf₂ : Yᶜ.Finite) :
+    (LogicGLBetaMinus X hCf₁ : Logic α) = LogicGLBetaMinus Y hCf₂ := by
   subst h;
   rfl;
 
-lemma subset_LogicGLAlpha_LogicS : LogicGLAlpha Alpha ⊆ @LogicS α := by
+lemma subset_LogicGLAlpha_LogicS : LogicGLAlpha X ⊆ @LogicS α := by
   intro C hC;
   induction hC with
   | mem₁ hA => exact Logic.sumQuasiNormal.mem₁ hA;
@@ -427,7 +393,7 @@ lemma subset_LogicGLBetaMinus_of_trace_cofinite (hL : L.traceᶜ.Finite) :
   exact Logic.sumQuasiNormal.mem₂ ⟨TBBMinus _ hL, rfl, rfl⟩;
 
 /--
-If `Beta` is the universal set, `LogicGLBetaMinus Beta hCf` proves `⊥`.
+If the trace set is the universal set, `LogicGLBetaMinus Set.univ hCf` proves `⊥`.
 
 - [AB05, Lemma 49]
 -/
@@ -751,7 +717,7 @@ then it contains `LogicA`.
 -/
 theorem subset_LogicA_of_univ_trace :
     letI L : Logic α := T.provabilityLogicRelativeTo U;
-    L.trace = Set.univ → LogicA ⊆ L := by
+    L.trace = Set.univ → LogicGLAlpha Set.univ ⊆ L := by
   intro hT A hA;
   induction hA with
   | mem₁ hA =>
