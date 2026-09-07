@@ -533,7 +533,7 @@ theorem exists_chain_from_aux {BS : Sequent α} (hBS : ⊬ᵍ[GLPoint3] BS) :
           ((seq i.castSucc).Θ \ split i).box ⊆ (seq i.succ).toSequent.suc) ∧
         (∀ i : Fin n, split i ⊆ (seq i.castSucc).Θ ∧ (split i).Nonempty) ∧
         (seq (Fin.last n)).Θ = ∅ := by
-  haveI : Fact (⊬ᵍ[GLPoint3] BS) := Fact.mk hBS
+  have : Fact (⊬ᵍ[GLPoint3] BS) := Fact.mk hBS
   intro m
   induction m using Nat.strong_induction_on with
   | _ m ih =>
@@ -628,7 +628,7 @@ unprovable) sits at the head of a `Chain BS S₀`. -/
 theorem exists_chain {BS S₀ : Sequent α} (hBS : ⊬ᵍ[GLPoint3] BS) (hS₀ : ⊬ᵍ[GLPoint3] S₀)
     (hsub : S₀.ant ∪ S₀.suc ⊆ BS.subfmls) :
     Nonempty (Chain BS S₀) := by
-  haveI : Fact (⊬ᵍ[GLPoint3] BS) := Fact.mk hBS
+  have : Fact (⊬ᵍ[GLPoint3] BS) := Fact.mk hBS
   set x₀ : ExpandedSequent BS := ExpandedSequent.lindenbaum S₀ hS₀ hsub with hx₀_def
   obtain ⟨n, seq, split, hseq0, hant, hsuc, hspl, hlast⟩ :=
     exists_chain_from_aux hBS ((BS.subfmls \ x₀.Γ).card) x₀ (le_refl _)
@@ -807,7 +807,7 @@ theorem completeness {S : Sequent α}
     ⊢ᵍ[GLPoint3] S := by
   by_contra hS
   obtain ⟨n, M, hFin, hant, hsuc⟩ := exists_finite_countermodel hS
-  haveI := hFin
+  have := hFin
   obtain ⟨D, hD, hDforces⟩ := h (n + 1) M.toModel M.root.1 hant
   exact hsuc D hD hDforces
 

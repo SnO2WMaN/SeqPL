@@ -239,7 +239,7 @@ structure IsDefiningFormula (P : Finset α) (M : RootedModel κ α) (A : Formula
 -/
 theorem exists_isDefiningFormula {M : RootedModel κ α} [M.IsFiniteGL] (P : Finset α) :
   ∃ A : Formula α, IsDefiningFormula P M A := by
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   use M.root.1.charFormulaUnder P;
   constructor;
   . exact Model.World.atoms_charFormulaUnder;

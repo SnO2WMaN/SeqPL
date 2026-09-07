@@ -5,8 +5,8 @@ public import ProvabilityLogic.Logic.GL.Basic
 
 @[expose] public section
 
-open LO
-open LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.FirstOrder.ProvabilityAbstraction
 
 variable {α : Type*}
 variable {L : FirstOrder.Language} [L.ReferenceableBy L] {T₀ T U : FirstOrder.Theory L} {𝔅 : Provability T₀ T}
@@ -123,10 +123,10 @@ end LetterlessFormula
 
 
 @[grind]
-def LO.FirstOrder.ArithmeticTheory.provabilityLogicRelativeTo (T U : FirstOrder.ArithmeticTheory) [T.Δ₁] : Logic α :=
+def FFL.FirstOrder.ArithmeticTheory.provabilityLogicRelativeTo (T U : FirstOrder.ArithmeticTheory) [T.Δ₁] : Logic α :=
   {A | ∀ f : Realization α ℒₒᵣ, U ⊢ f T A}
 
-abbrev LO.FirstOrder.ArithmeticTheory.provabilityLogic (T : FirstOrder.ArithmeticTheory) [T.Δ₁] : Logic α := T.provabilityLogicRelativeTo T
+abbrev FFL.FirstOrder.ArithmeticTheory.provabilityLogic (T : FirstOrder.ArithmeticTheory) [T.Δ₁] : Logic α := T.provabilityLogicRelativeTo T
 
 
 

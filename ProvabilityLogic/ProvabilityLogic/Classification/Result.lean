@@ -21,8 +21,8 @@ The truth provability logics, i.e. the logics of the form `PL_T(𝗧𝗔)`, are 
 @[expose] public section
 
 open Classical
-open LO LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 open Model Model.World
 open LogicGL
 
@@ -86,7 +86,7 @@ open LetterlessFormula
 /--
   `U` extended by the standard `T`-interpretations of `TBB n` for `n ∈ N`.
 -/
-noncomputable abbrev _root_.LO.FirstOrder.ArithmeticTheory.addTBB
+noncomputable abbrev _root_.FFL.FirstOrder.ArithmeticTheory.addTBB
     (T U : FirstOrder.ArithmeticTheory) [T.Δ₁] (N : Set ℕ) : FirstOrder.ArithmeticTheory :=
   U ∪ (N.image (fun n => LetterlessFormula.standardInterpret T (TBB n)))
 
@@ -97,7 +97,7 @@ variable {N : Set ℕ}
 /--
   `U` is weaker than its extension by `TBB` interpretations.
 -/
-lemma _root_.LO.FirstOrder.ArithmeticTheory.addTBB.weakerThan : U ⪯ T.addTBB U N :=
+lemma _root_.FFL.FirstOrder.ArithmeticTheory.addTBB.weakerThan : U ⪯ T.addTBB U N :=
   inferInstance
 
 end without_T_U_alpha
@@ -151,10 +151,10 @@ lemma imp_fconjTBB_mem_provabilityLogic_of_mem_addTBB (hN : N.Finite) :
     ∀ {A : Formula α}, A ∈ L' →
       ((LetterlessFormula.lift (⋀(hN.toFinset.image TBB)) : Formula α) 🡒 A) ∈ L := by
   intro A hA f;
-  obtain ⟨⟨s, hs_sub⟩, hs⟩ := LO.FirstOrder.Theory.compact_add_right (hA f);
+  obtain ⟨⟨s, hs_sub⟩, hs⟩ := FFL.FirstOrder.Theory.compact_add_right (hA f);
   show U ⊢ (f T (LetterlessFormula.lift (⋀(hN.toFinset.image TBB)) : Formula α)) 🡒 (f T A);
-  apply Entailment.C!_trans ?_ hs;
-  apply right_Fconj!_intro;
+  apply Entailment.C_trans ?_ hs;
+  apply right_Fconj_intro;
   intro σ hσ;
   obtain ⟨n, hn, rfl⟩ := hs_sub hσ;
   have hGL : ((LetterlessFormula.lift ((⋀(hN.toFinset.image TBB)) 🡒 TBB n) : Formula α))
@@ -317,9 +317,9 @@ lemma subset_LogicS_addTBB_compl_trace_of_subset_LogicS :
     L ⊆ LogicS → L' ⊆ LogicS := by
   intro hS;
   by_contra hS';
-  haveI hUW : U ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
+  have hUW : U ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
     FirstOrder.ArithmeticTheory.addTBB.weakerThan;
-  haveI : 𝗜𝚺₁ ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
+  have : 𝗜𝚺₁ ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
     Entailment.WeakerThan.trans (inferInstanceAs (𝗜𝚺₁ ⪯ U)) hUW;
   -- By Lemma 49 the extended logic is `GLβ⁻` of its trace `ω`, hence inconsistent.
   have h49 := eq_provabilityLogic_LogicGLBetaMinus_of_not_subset_LogicS hS';
@@ -360,7 +360,7 @@ lemma subset_LogicS_addTBB_compl_trace_of_subset_LogicS :
         ∈ LogicGL := by
       apply LogicGL.iff_forces_root.mpr;
       intro κ _ M _;
-      haveI : Fintype M.World := Fintype.ofFinite _;
+      have : Fintype M.World := Fintype.ofFinite _;
       apply Model.World.forces_imp.mpr;
       by_cases hx : M.root.1 ⊩[_] ⋀(hCf.toFinset.image (TBB : ℕ → Formula α));
       . right;
@@ -431,9 +431,9 @@ lemma classification_LogicS_sublogics_of_cofinite_trace :
       L = LogicD ∩ LogicGLBetaMinus L.trace hCf ∨
       L = LogicS ∩ LogicGLBetaMinus L.trace hCf := by
   intro hCf hS;
-  haveI hUW : U ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
+  have hUW : U ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
     FirstOrder.ArithmeticTheory.addTBB.weakerThan;
-  haveI : 𝗜𝚺₁ ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
+  have : 𝗜𝚺₁ ⪯ T.addTBB U (T.provabilityLogicRelativeTo U : Logic α).traceᶜ :=
     Entailment.WeakerThan.trans (inferInstanceAs (𝗜𝚺₁ ⪯ U)) hUW;
   have hInter := eq_provabilityLogic_inter_addTBB_LogicGLBetaMinus (T := T) (U := U) (α := α) hCf;
   rcases classification_LogicS_sublogics_of_univ_trace
@@ -597,7 +597,7 @@ lemma trace_provabilityLogicRelativeTo_TA_eq_univ_iff [DecidableEq α] [Nonempty
     exact (mem_trace_provabilityLogicRelativeTo_TA_iff.mp (h n)) hn.symm;
   . intro h n;
     rw [mem_trace_provabilityLogicRelativeTo_TA_iff, h];
-    exact (ENat.coe_lt_top n).ne';
+    exact (ENat.natCast_lt_top n).ne';
 
 /--
   The trace of the truth provability logic of `T` is the complement of `{n}` iff `T` has height `n`.
@@ -621,7 +621,7 @@ end
   If `T` is `Σ₁`-sound, then the `Σ₁`-reflection instance for `T` is true in the standard model for any `Σ₁` sentence `σ`.
 -/
 lemma models_standardProvability_imp_of_soundOnHierarchy [T.SoundOnHierarchy 𝚺 1]
-    {σ : ArithmeticSentence} (hσ : LO.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ) :
+    {σ : ArithmeticSentence} (hσ : FFL.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ) :
     ℕ↓[ℒₒᵣ] ⊧ ((T.standardProvability σ) 🡒 σ) := by
   rw [Semantics.Imp.models_imply];
   intro h;
@@ -631,7 +631,7 @@ lemma models_standardProvability_imp_of_soundOnHierarchy [T.SoundOnHierarchy �
   Converse of `models_standardProvability_imp_of_soundOnHierarchy`: if every `Σ₁`-reflection instance for `T` is true in the standard model, then `T` is `Σ₁`-sound.
 -/
 lemma soundOnHierarchy_of_models_standardProvability_imp
-    (h : ∀ {σ : ArithmeticSentence}, LO.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ →
+    (h : ∀ {σ : ArithmeticSentence}, FFL.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ →
       ℕ↓[ℒₒᵣ] ⊧ ((T.standardProvability σ) 🡒 σ)) :
     T.SoundOnHierarchy 𝚺 1 := by
   constructor;
@@ -658,7 +658,7 @@ lemma LogicD_subset_provabilityLogicRelativeTo_TA [T.SoundOnHierarchy 𝚺 1] :
   | axiomP =>
     intro f;
     apply Arithmetic.TA.provable_iff.mpr;
-    have e : f T (∼□⊥ : Formula α) = (T.standardProvability (⊥ : ArithmeticSentence)) 🡒 ⊥ := by
+    have e : f T (∼□⊥ : Formula α) = (T.standardProvability (⊥ : ArithmeticSentence)) 🡒 (⊥ : ArithmeticSentence) := by
       simp [Formula.interpret];
     rw [e, Semantics.Imp.models_imply];
     intro h;
@@ -667,7 +667,7 @@ lemma LogicD_subset_provabilityLogicRelativeTo_TA [T.SoundOnHierarchy 𝚺 1] :
   | @axiomD B C =>
     intro f;
     apply Arithmetic.TA.provable_iff.mpr;
-    have hσ : LO.FirstOrder.Arithmetic.Hierarchy 𝚺 1 (f T ((□B) ⋎ (□C) : Formula α)) := by
+    have hσ : FFL.FirstOrder.Arithmetic.Hierarchy 𝚺 1 (f T ((□B) ⋎ (□C) : Formula α)) := by
       simp [Formula.interpret, Arithmetic.standardProvability_def];
     have hrfl := models_standardProvability_imp_of_soundOnHierarchy (T := T) hσ;
     simpa [Formula.interpret] using hrfl;
@@ -776,7 +776,7 @@ theorem eq_provabilityLogic_TA_LogicS_iff [DecidableEq α] [Nonempty α] :
     L = LogicS ↔ ℕ↓[ℒₒᵣ] ⊧* T := by
   constructor;
   . intro h;
-    apply LO.Semantics.modelsSet_iff.mpr;
+    apply FFL.Semantics.modelsSet_iff.mpr;
     intro φ hφ;
     obtain ⟨p⟩ := ‹Nonempty α›;
     -- the reflection principle for `T` is true, and axioms of `T` are provable
@@ -803,7 +803,7 @@ theorem eq_provabilityLogic_TA_LogicD_iff [DecidableEq α] [Nonempty α] :
     L = LogicD ↔ (T.SoundOnHierarchy 𝚺 1 ∧ ¬(ℕ↓[ℒₒᵣ] ⊧* T)) := by
   constructor;
   . intro h;
-    have hSigma1Refl : ∀ {σ : ArithmeticSentence}, LO.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ →
+    have hSigma1Refl : ∀ {σ : ArithmeticSentence}, FFL.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ →
         ℕ↓[ℒₒᵣ] ⊧ ((T.standardProvability σ) 🡒 σ) := by
       intro σ hσ;
       apply Arithmetic.TA.provable_iff.mp;
@@ -823,7 +823,7 @@ theorem eq_provabilityLogic_TA_LogicD_iff [DecidableEq α] [Nonempty α] :
       intro σ hTσ hσ;
       exact (Semantics.Imp.models_imply.mp (hSigma1Refl hσ)) (models_standardProvability_iff.mpr hTσ);
     . intro hsound;
-      haveI : ℕ↓[ℒₒᵣ] ⊧* T := hsound;
+      have : ℕ↓[ℒₒᵣ] ⊧* T := hsound;
       have hS : (T.provabilityLogicRelativeTo 𝗧𝗔 : Logic α) = LogicS :=
         eq_provabilityLogic_TA_LogicS_of_sound;
       obtain ⟨a⟩ := ‹Nonempty α›;
@@ -831,7 +831,7 @@ theorem eq_provabilityLogic_TA_LogicD_iff [DecidableEq α] [Nonempty α] :
         hS ▸ LogicS.provable_axiomT;
       exact LogicD.not_provable_axiomT (h ▸ hT);
   . rintro ⟨hSig, hsound⟩;
-    haveI := hSig;
+    have := hSig;
     have hDL := LogicD_subset_provabilityLogicRelativeTo_TA (T := T) (α := α);
     have hheight : T.height = (⊤ : ℕ∞) := Arithmetic.height_eq_top_of_sigma1_sound T;
     have hUniv := trace_provabilityLogicRelativeTo_TA_eq_univ_iff (α := α).mpr hheight;
@@ -857,7 +857,7 @@ theorem eq_provabilityLogic_TA_LogicA_iff [DecidableEq α] [Nonempty α] :
       rw [h]; exact LogicGLAlpha.eq_trace;
     constructor;
     . intro hSig;
-      haveI := hSig;
+      have := hSig;
       exact not_LogicD_subset_LogicA (α := α) (a := Classical.arbitrary α)
         (h ▸ LogicD_subset_provabilityLogicRelativeTo_TA);
     . exact trace_provabilityLogicRelativeTo_TA_eq_univ_iff.mp hTrace;
@@ -880,7 +880,7 @@ theorem eq_provabilityLogic_TA_LogicA_iff [DecidableEq α] [Nonempty α] :
         apply Set.eq_univ_of_forall;
         intro n;
         exact mem_trace_of_provable_TBB (h ▸ LogicD.provable_TBB);
-      have hreflU : ∀ {σ : ArithmeticSentence}, LO.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ →
+      have hreflU : ∀ {σ : ArithmeticSentence}, FFL.FirstOrder.Arithmetic.Hierarchy 𝚺 1 σ →
           ℕ↓[ℒₒᵣ] ⊧ ((T.standardProvability σ) 🡒 σ) := by
         intro σ hσ;
         exact Arithmetic.TA.provable_iff.mp
@@ -889,7 +889,7 @@ theorem eq_provabilityLogic_TA_LogicA_iff [DecidableEq α] [Nonempty α] :
       intro σ hTσ hσ;
       exact (Semantics.Imp.models_imply.mp (hreflU hσ)) (models_standardProvability_iff.mpr hTσ);
     . have hFull : ℕ↓[ℒₒᵣ] ⊧* T := eq_provabilityLogic_TA_LogicS_iff.mp h;
-      haveI := hFull;
+      have := hFull;
       exact absurd (inferInstance : T.SoundOnHierarchy 𝚺 1) hSig;
 
 /--
@@ -911,7 +911,7 @@ theorem eq_provabilityLogic_TA_LogicGLBetaMinus_iff [DecidableEq α] {n : ℕ} :
     have hnTBB : (∼(TBB n) : Formula α) ∈ (T.provabilityLogicRelativeTo 𝗧𝗔 : Logic α) := by
       intro f;
       apply Arithmetic.TA.provable_iff.mpr;
-      show ℕ↓[ℒₒᵣ] ⊧ ((f T (TBB n : Formula α) : ArithmeticSentence) 🡒 ⊥);
+      show ℕ↓[ℒₒᵣ] ⊧ ((f T (TBB n : Formula α) : ArithmeticSentence) 🡒 (⊥ : ArithmeticSentence));
       rw [Semantics.Imp.models_imply];
       intro hcontra;
       have e : f T (TBB n : Formula α) = LetterlessFormula.standardInterpret T (TBB n) := by
@@ -925,7 +925,7 @@ theorem eq_provabilityLogic_TA_LogicGLBetaMinus_iff [DecidableEq α] {n : ℕ} :
       intro hSub;
       have h1 : (∼(TBB n) : Formula α) ∈ LogicS := hSub hnTBB;
       have h2 : (TBB n : Formula α) ∈ LogicS := LogicS.provable_TBB;
-      have htaut : (((∼(TBB n)) : Formula α) 🡒 (TBB n) 🡒 ⊥) ∈ LogicGL := by
+      have htaut : (((∼(TBB n)) : Formula α) 🡒 (TBB n) 🡒 (⊥ : Formula α)) ∈ LogicGL := by
         apply LogicGL.iff_forces.mpr;
         grind;
       exact LogicS.consistent

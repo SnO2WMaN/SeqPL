@@ -110,8 +110,8 @@ instance instIsTree : (M.unravelling).IsTree := by
     . left; exact Subtype.ext $ (h.eq_of_length hl).symm;
 
 instance instFinite [M.IsFiniteGL] : Finite (M.unravelling).World := by
-  haveI := Classical.decEq M.World;
-  haveI : Finite { l : List M.World // l.IsChain M.Rel } := List.chains_finite;
+  have := Classical.decEq M.World;
+  have : Finite { l : List M.World // l.IsChain M.Rel } := List.chains_finite;
   apply Finite.of_injective
     (fun x => (⟨x.1, x.2.2⟩ : { l : List M.World // l.IsChain M.Rel }));
   intro x y h;
@@ -125,7 +125,7 @@ instance instIsFiniteGL [M.IsFiniteGL] : (M.unravelling).IsFiniteGL where
 def pMorphism [M.IsGL] : (M.unravelling).toModel →ₚ M.toModel where
   toFun := World.last
   forth := by
-    haveI := Classical.decEq M.World;
+    have := Classical.decEq M.World;
     rintro x y ⟨hp, hl⟩;
     apply List.rel_getLast_of_isChain_trans (isChain y) (ne_nil y);
     . exact hp.subset $ List.getLast_mem (ne_nil x);

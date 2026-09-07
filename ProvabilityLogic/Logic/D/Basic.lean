@@ -254,12 +254,12 @@ lemma forces_pseudoTail_root_of_provable [DecidableEq α] (h : A ∈ LogicD) :
         refine ⟨i.toNat, ?_⟩;
         intro n hn;
         apply toPseudoTail.rel_chainPoint_chainPoint.mpr;
-        calc i = ((i.toNat : ℕ) : ℕ∞) := (ENat.coe_toNat hi.ne).symm
+        calc i = ((i.toNat : ℕ) : ℕ∞) := (ENat.natCast_toNat hi.ne).symm
           _ < ((n : ℕ) : ℕ∞) := by exact_mod_cast hn;
     obtain ⟨k₁, hk₁⟩ := key x Rrx;
     obtain ⟨k₂, hk₂⟩ := key y Rry;
     have hz : toPseudoTail.chainPoint ((k₁ + k₂ + 1 : ℕ) : ℕ∞) ⊩[_] (□B ⋎ □C) :=
-      hbox _ (toPseudoTail.rel_chainPoint_chainPoint.mpr (ENat.coe_lt_top _));
+      hbox _ (toPseudoTail.rel_chainPoint_chainPoint.mpr (ENat.natCast_lt_top _));
     rcases forces_or.mp hz with (hzB | hzC);
     · exact hx (hzB x (hk₁ _ (by omega)));
     · exact hy (hzC y (hk₂ _ (by omega)));
@@ -431,7 +431,7 @@ lemma not_provable_map_some [DecidableEq α] {A : Formula α}
   exact e.mp hfrc;
 
 /-- The reflection axiom `T` (`□a 🡒 a` for an atom `a`) is not a theorem of `D`.
-The ProvabilityLogic analogue of `LO.Modal.D.unprovable_T`. -/
+The ProvabilityLogic analogue of `FFL.Modal.D.unprovable_T`. -/
 lemma not_provable_axiomT [DecidableEq α] {a : α} : (□(#a) 🡒 #a : Formula α) ∉ LogicD :=
   -- Counterexample: the pseudo-tail model of the one-point GL model with empty relation
   -- and everywhere-true valuation, with the root (ω) valuation making `a` false. Every

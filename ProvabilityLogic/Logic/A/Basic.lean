@@ -214,7 +214,7 @@ lemma root_forces_neg_boxItr_bot_imp
   use N;
   intro κ _ M _;
   -- Both `x ⊩[M] ∼□^[N]⊥` and `∀ n < N, x ⊩[M] TBB n` express `N ≤ x.rank`.
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   by_contra hC;
   obtain ⟨h₁, h₂⟩ := not_forces_imp.mp hC;
   apply h₂;
@@ -286,7 +286,7 @@ theorem provability_TFAE : [
   tfae_have 1 → 5 := LogicA.iff_provable_provable_GL_neg_boxItr_bot_imp.mp;
   tfae_have 5 → 4 := by
     rintro ⟨n, hGL⟩ κ _ M _ a Rra;
-    haveI := RootedModel.graftOmega.isGL (M := M) (a := ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩) Rra;
+    have := RootedModel.graftOmega.isGL (M := M) (a := ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩) Rra;
     exact ProvableHilbert.Kripke.soundness hGL ((M.graftOmega ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩).toModel)
       (M.graftOmega ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩).root.1
       (forces_neg.mpr RootedModel.graftOmega.root_not_forces_boxItr_bot);

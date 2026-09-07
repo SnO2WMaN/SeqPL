@@ -67,7 +67,7 @@ lemma World.modal_equivalent_of_bisimilar (Bi : M₁ ⇄ M₂) (bisx : Bi x₁ x
       obtain ⟨y₂, bisy, Rx₂y₂⟩ := Bi.forth bisx Rx₁y₁;
       exact ih bisy |>.mpr $ h _ Rx₂y₂;
 
-def World.ModalEquivalent.symm (h : x₁ ↭ x₂) : x₂ ↭ x₁ := fun {_} => Iff.symm h
+theorem World.ModalEquivalent.symm (h : x₁ ↭ x₂) : x₂ ↭ x₁ := fun {_} => Iff.symm h
 
 end ModalEquivalent
 

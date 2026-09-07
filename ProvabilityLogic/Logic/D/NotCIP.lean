@@ -211,9 +211,9 @@ lemma interpolant_root_forces_iff
     have hc0 : ¬(toPseudoTail.chainPoint ((0 : ℕ) : ℕ∞) ⊩[((flipModel M c).toPseudoTail M.root.1 o).toModel] (#c)) := by
       show ¬(if ((0 : ℕ) : ℕ∞) = (⊤ : ℕ∞) then o c else
         if c = c then M.root.1 ≠ M.root.1 else M.toModel.Val' M.root.1 c);
-      rw [if_neg (ENat.coe_lt_top 0).ne, if_pos rfl];
+      rw [if_neg (ENat.natCast_lt_top 0).ne, if_pos rfl];
       simp;
-    exact hc0 (hBf hant (toPseudoTail.chainPoint ((0 : ℕ) : ℕ∞)) (ENat.coe_lt_top 0));
+    exact hc0 (hBf hant (toPseudoTail.chainPoint ((0 : ℕ) : ℕ∞)) (ENat.natCast_lt_top 0));
   . -- If `a` holds on the tail scale, the root forces `C`; by contradiction.
     intro hp;
     by_contra hC;
@@ -249,9 +249,9 @@ lemma interpolant_root_forces_iff
       have hb0 : ¬(toPseudoTail.chainPoint ((0 : ℕ) : ℕ∞) ⊩[((flipModel M b).toPseudoTail M.root.1 o).toModel] (#b)) := by
         show ¬(if ((0 : ℕ) : ℕ∞) = (⊤ : ℕ∞) then o b else
           if b = b then M.root.1 ≠ M.root.1 else M.toModel.Val' M.root.1 b);
-        rw [if_neg (ENat.coe_lt_top 0).ne, if_pos rfl];
+        rw [if_neg (ENat.natCast_lt_top 0).ne, if_pos rfl];
         simp;
-      exact hb0 (hAf hante (toPseudoTail.chainPoint ((0 : ℕ) : ℕ∞)) (ENat.coe_lt_top 0));
+      exact hb0 (hAf hante (toPseudoTail.chainPoint ((0 : ℕ) : ℕ∞)) (ENat.natCast_lt_top 0));
     -- Transfer the root-forcing of `C` back from the flipped pseudo-tail.
     apply hC;
     exact (forces_congr_atoms
@@ -429,7 +429,7 @@ theorem notCIP {a b c : α} (hab : a ≠ b) (hac : a ≠ c) (hbc : b ≠ c) :
     ∃ A B : Formula α, (A 🡒 B) ∈ LogicD ∧
       ¬ ∃ C : Formula α, (A 🡒 C) ∈ LogicD ∧ (C 🡒 B) ∈ LogicD ∧
         C.atoms ⊆ A.atoms ∩ B.atoms := by
-  haveI : Nontrivial α := ⟨⟨a, b, hab⟩⟩;
+  have : Nontrivial α := ⟨⟨a, b, hab⟩⟩;
   use ∼(counterexampleCIP_A (#a) (#b)), counterexampleCIP_B (#a) (#c), provable_counterexample_imp;
   rintro ⟨C, hCant, hCsuc, hCatoms⟩;
   -- The only common atom of `∼A` and `B` is `a`.

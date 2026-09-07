@@ -8,15 +8,15 @@ public import ProvabilityLogic.ProvabilityLogic.Interpret
 # Construction of Solovay sentences
 
 Port of the construction in `Foundation.ProvabilityLogic.SolovaySentences`
-(`LO.FirstOrder.Arithmetic.Bootstrapping.SolovaySentences`) to ProvabilityLogic's Kripke models.
+(`FFL.FirstOrder.Arithmetic.Bootstrapping.SolovaySentences`) to ProvabilityLogic's Kripke models.
 -/
 
 @[expose] public section
 
 open Classical
-open LO
-open LO.Entailment
-open LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.Entailment
+open FFL.FirstOrder.ProvabilityAbstraction
 open Model Model.World
 
 variable {L : FirstOrder.Language} [L.ReferenceableBy L]
@@ -27,7 +27,7 @@ variable {κ : Type*} [Nonempty κ]
          {A B : _root_.Formula α}
          {M : RootedModel κ α}
 
-structure LO.FirstOrder.ProvabilityAbstraction.Provability.SolovaySentences
+structure FFL.FirstOrder.ProvabilityAbstraction.Provability.SolovaySentences
   (𝔅 : Provability T₀ T) (M : RootedModel κ α) [Fintype M.World] where
   σ : M.World → FirstOrder.Sentence L
   protected SC1 : ∀ i j, i ≠ j → T₀ ⊢ σ i 🡒 ∼σ j
@@ -35,7 +35,7 @@ structure LO.FirstOrder.ProvabilityAbstraction.Provability.SolovaySentences
   protected SC3 : ∀ i : M.World, M.root ≠ i → T₀ ⊢ σ i 🡒 𝔅 (⩖ j ∈ { j : M.World | i ≺ j }, σ j)
   protected SC4 : T₀ ⊢ ⩖ j, σ j
 
-namespace LO.FirstOrder.ProvabilityAbstraction.Provability.SolovaySentences
+namespace FFL.FirstOrder.ProvabilityAbstraction.Provability.SolovaySentences
 
 attribute [coe] σ
 
@@ -53,11 +53,11 @@ private lemma mainlemma_aux (hri : M.root ≠ i)
   | atom a =>
     constructor;
     . intro h;
-      apply right_Fdisj'!_intro;
+      apply right_Fdisj'_intro;
       simpa using h;
     . intro h;
-      apply CN!_of_CN!_right;
-      apply left_Fdisj'!_intro;
+      apply CN_of_CN_right;
+      apply left_Fdisj'_intro;
       intro j hj;
       apply S.SC1;
       by_contra hC; subst hC;
@@ -68,18 +68,18 @@ private lemma mainlemma_aux (hri : M.root ≠ i)
     constructor;
     . intro h;
       rcases forces_imp.mp h with (hA | hB);
-      . exact C!_trans ((ihA hri).2 hA) CNC!;
-      . exact C!_trans ((ihB hri).1 hB) implyK!;
+      . exact C_trans ((ihA hri).2 hA) CNC;
+      . exact C_trans ((ihB hri).1 hB) implyK;
     . intro h;
       obtain ⟨hA, hB⟩ := not_forces_imp.mp h;
-      exact not_imply_prem''! ((ihA hri).1 hA) ((ihB hri).2 hB);
+      exact CNC_of_C_of_CN ((ihA hri).1 hA) ((ihB hri).2 hB);
   | box A ihA =>
     simp only [Formula.interpret];
     constructor;
     . intro h;
-      apply C!_trans $ S.SC3 i hri;
+      apply C_trans $ S.SC3 i hri;
       apply 𝔅.mono';
-      apply left_Fdisj'!_intro;
+      apply left_Fdisj'_intro;
       rintro j Rij;
       replace Rij : i ≺ j := by simpa using Rij;
       have hrj : ↑M.root ≠ j := by
@@ -92,8 +92,8 @@ private lemma mainlemma_aux (hri : M.root ≠ i)
         rintro rfl;
         exact Std.Irrefl.irrefl i $ IsTrans.trans i (↑M.root) i Rij (M.root.2 i (Ne.symm hri));
       have : T₀ ⊢ 𝔅.dia (S.σ j) 🡒 ∼(𝔅 (A.interpret S.realization 𝔅)) :=
-        contra! $ 𝔅.mono' $ CN!_of_CN!_right $ (ihA hrj).2 hA;
-      exact C!_trans (S.SC2 i j Rij) this;
+        contra $ 𝔅.mono' $ CN_of_CN_right $ (ihA hrj).2 hA;
+      exact C_trans (S.SC2 i j Rij) this;
 
 theorem mainlemma (hri : M.root ≠ i) :
   i ⊩[_] A → T₀ ⊢ S.σ i 🡒 A.interpret S.realization 𝔅 := (mainlemma_aux hri).1
@@ -104,7 +104,7 @@ theorem mainlemma_neg (hri : M.root ≠ i) :
 lemma root_of_iterated_inconsistency : T₀ ⊢ (∼𝔅^[M.height] ⊥) 🡒 (S.σ M.root) := by
   suffices T₀ ⊢ (⩖ j, S.σ j) 🡒 ((∼(S.σ M.root)) 🡒 (𝔅^[M.height] ⊥)) by
     cl_prover [this, S.SC4];
-  apply left_Udisj!_intro;
+  apply left_Udisj_intro;
   intro i;
   by_cases hir : i = ↑M.root;
   . rcases hir;
@@ -171,11 +171,11 @@ lemma rfl_mainlemma
     intro _;
     constructor;
     . intro h;
-      apply right_Fdisj'!_intro;
+      apply right_Fdisj'_intro;
       grind [Model.World.Forces];
     . intro h;
-      apply CN!_of_CN!_right;
-      apply left_Fdisj'!_intro;
+      apply CN_of_CN_right;
+      apply left_Fdisj'_intro;
       intro j hj;
       apply S.SC1;
       rintro rfl;
@@ -189,24 +189,24 @@ lemma rfl_mainlemma
     constructor;
     . intro h;
       rcases Model.World.forces_imp.mp h with (hB | hC);
-      . exact C!_trans (ihB.2 hB) CNC!;
-      . exact C!_trans (ihC.1 hC) implyK!;
+      . exact C_trans (ihB.2 hB) CNC;
+      . exact C_trans (ihC.1 hC) implyK;
     . intro h;
       obtain ⟨hB, hC⟩ := Model.World.not_forces_imp.mp h;
-      exact not_imply_prem''! (ihB.1 hB) (ihC.2 hC);
+      exact CNC_of_C_of_CN (ihB.1 hB) (ihC.2 hC);
   | box B ihB =>
     intro hBox;
     replace ihB := ihB (by grind);
     simp only [Formula.interpret];
     constructor;
     . intro h;
-      apply C!_of_conseq!;
+      apply C_of_conseq;
       apply T.standardProvability.D1;
       apply Entailment.WeakerThan.pbl (𝓢 := 𝗜𝚺₁);
       have all : ∀ i : (M.extendRoot 1).World,
         𝗜𝚺₁ ⊢ S.σ i 🡒 (S.realization T B) := by
         rintro (x | i);
-        . apply S.mainlemma (by simp [RootedModel.extendRoot, Fin.posLast]);
+        . apply S.mainlemma Sum.inr_ne_inl;
           apply RootedModel.extendRoot.same_forces_embed.mpr;
           by_cases hx : x = M.root.1;
           . subst hx;
@@ -219,29 +219,29 @@ lemma rfl_mainlemma
             simp only [Fin.posLast, PNat.natPred, PNat.val_ofNat] at this ⊢;
             omega];
           exact ihB.1 (ha B hBox h);
-      have := left_Udisj!_intro _ all;
+      have := left_Udisj_intro _ all;
       cl_prover [this, S.SC4];
     . intro h;
       obtain ⟨y, Rxy, hy⟩ := Model.World.not_forces_box.mp h;
       have hmn : 𝗜𝚺₁ ⊢ S.σ (Sum.inl y) 🡒 ∼(S.realization T B) :=
-        S.mainlemma_neg (by simp [RootedModel.extendRoot, Fin.posLast])
+        S.mainlemma_neg Sum.inr_ne_inl
           (RootedModel.extendRoot.same_forces_embed.not.mpr hy);
       have b : 𝗜𝚺₁ ⊢ T.standardProvability.dia (S.σ (Sum.inl y)) 🡒
           ∼(T.standardProvability (S.realization T B)) :=
-        contra! $ T.standardProvability.mono' $ CN!_of_CN!_right hmn;
-      exact C!_trans (S.SC2 _ _ (by simp [Model.Rel])) b;
+        contra $ T.standardProvability.mono' $ CN_of_CN_right hmn;
+      exact C_trans (S.SC2 _ _ (by simp [Model.Rel])) b;
 
 end
 
-end LO.FirstOrder.ProvabilityAbstraction.Provability.SolovaySentences
+end FFL.FirstOrder.ProvabilityAbstraction.Provability.SolovaySentences
 
 noncomputable section
 
-namespace LO.FirstOrder.Arithmetic.Bootstrapping
+namespace FFL.FirstOrder.Arithmetic.Bootstrapping
 
 namespace SolovaySentences
 
-open LO LO.Entailment
+open FFL FFL.Entailment
 open Model Model.World
 
 variable {κ : Type*} [Nonempty κ] {α : Type*}
@@ -318,10 +318,10 @@ lemma rew_θAux (w : Fin N → FirstOrder.ArithmeticSemiterm Empty N') (t : M.Wo
     Rew.subst w ▹ θAux T M t i = θAux T M (fun i ↦ Rew.subst w (t i)) i := by
   simp [Finset.map_udisj, θAux, rew_θChainAux]
 
-def _root_.LO.FirstOrder.Theory.solovay (i : M.World) : ArithmeticSentence := exclusiveMultifixedpoint
+def _root_.FFL.FirstOrder.Theory.solovay (i : M.World) : ArithmeticSentence := exclusiveMultifixedpoint
   (fun j ↦
     let jj := (Fintype.equivFin M.World).symm j
-    (θAux T M (fun i ↦ #(Fintype.equivFin M.World i)) jj) ⋏ (⩕ k ∈ { k : M.World | jj ≺ k }, T.consistentWith/[#(Fintype.equivFin M.World k)]))
+    (θAux T M (fun i ↦ #(Fintype.equivFin M.World i)) jj) ⋏ (⩕ k ∈ { k : M.World | jj ≺ k }, T.consistentWith.val/[#(Fintype.equivFin M.World k)]))
   (Fintype.equivFin M.World i)
 
 def twoPoint (i j : M.World) : ArithmeticSentence := twoPointAux T M (fun i ↦ ⌜T.solovay M i⌝) i j
@@ -331,15 +331,15 @@ def θChain (ε : List M.World) : ArithmeticSentence := θChainAux T M (fun i �
 def θ (i : M.World) : ArithmeticSentence := θAux T M (fun i ↦ ⌜T.solovay M i⌝) i
 
 lemma solovay_diag (i : M.World) :
-    𝗜𝚺₁ ⊢ (T.solovay M i) 🡘 ((θ T M i) ⋏ (⩕ j ∈ { j : M.World | i ≺ j }, T.consistentWith/[⌜T.solovay M j⌝])) := by
+    𝗜𝚺₁ ⊢ (T.solovay M i) 🡘 ((θ T M i) ⋏ (⩕ j ∈ { j : M.World | i ≺ j }, T.consistentWith.val/[⌜T.solovay M j⌝])) := by
   have : 𝗜𝚺₁ ⊢ (T.solovay M i) 🡘
       (Rew.subst fun j ↦ ⌜T.solovay M ((Fintype.equivFin M.World).symm j)⌝) ▹
-        ((θAux T M (fun i ↦ #(Fintype.equivFin M.World i)) i) ⋏ (⩕ k ∈ { k : M.World | i ≺ k }, T.consistentWith/[#(Fintype.equivFin M.World k)])) := by
+        ((θAux T M (fun i ↦ #(Fintype.equivFin M.World i)) i) ⋏ (⩕ k ∈ { k : M.World | i ≺ k }, T.consistentWith.val/[#(Fintype.equivFin M.World k)])) := by
     simpa [Theory.solovay, Matrix.comp_vecCons', Matrix.constant_eq_singleton] using!
       exclusiveMultidiagonal (T := 𝗜𝚺₁) (i := Fintype.equivFin M.World i)
         (fun j ↦
           let jj := (Fintype.equivFin M.World).symm j
-          (θAux T M (fun i ↦ #(Fintype.equivFin M.World i)) jj) ⋏ (⩕ k ∈ { k : M.World | jj ≺ k }, T.consistentWith/[#(Fintype.equivFin M.World k)]))
+          (θAux T M (fun i ↦ #(Fintype.equivFin M.World i)) jj) ⋏ (⩕ k ∈ { k : M.World | jj ≺ k }, T.consistentWith.val/[#(Fintype.equivFin M.World k)]))
   simpa [θ, Finset.map_conj', Function.comp_def, rew_θAux, ←TransitiveRewriting.comp_app,
     Rew.subst_comp_subst, Matrix.comp_vecCons', Matrix.constant_eq_singleton] using! this
 
@@ -378,7 +378,7 @@ inductive ΘChain : List M.World → Prop where
 
 def Θ (i : M.World) : Prop := ∃ ε : List M.World, ε.ChainI (fun x y ↦ y ≺ x) i M.root.1 ∧ ΘChain T M V ε
 
-def _root_.LO.FirstOrder.Theory.Solovay (i : M.World) := Θ T M V i ∧ ∀ j, i ≺ j → T.ConsistentWith (⌜T.solovay M j⌝ : V)
+def _root_.FFL.FirstOrder.Theory.Solovay (i : M.World) := Θ T M V i ∧ ∀ j, i ≺ j → T.ConsistentWith (⌜T.solovay M j⌝ : V)
 
 variable {T M V}
 
@@ -578,7 +578,7 @@ lemma Solovay.box_disjunction [𝗜𝚺₁ ⪯ T] {i : M.World} (ne : M.root.1 �
     Bootstrapping.Arithmetic.sigma_one_provable_of_models T (show Hierarchy 𝚺 1 (θ T M i) by simp) (by simpa [models_iff] using! hS.1)
   have hP : T.internalize V ⊢ (⌜T.solovay M i⌝ ⋎ ⌜⩖ j ∈ {j : M.World | i ≺ j}, T.solovay M j⌝ : Arithmetic.Bootstrapping.Formula V ℒₒᵣ) := (by simpa using! TP) ⨀ Tθ
   have : T.internalize V ⊢ (∼⌜T.solovay M i⌝ : Arithmetic.Bootstrapping.Formula V ℒₒᵣ) := by simpa using! (tprovable_tquote_iff_provable_quote (T := T)).mpr (Solovay.refute ne hS)
-  have : T.internalize V ⊢ ⌜⩖ j ∈ {j : M.World | i ≺ j}, T.solovay M j⌝ := Entailment.of_a!_of_n! hP this
+  have : T.internalize V ⊢ ⌜⩖ j ∈ {j : M.World | i ≺ j}, T.solovay M j⌝ := Entailment.of_A_of_N hP this
   exact (tprovable_tquote_iff_provable_quote (T := T)).mp this
 
 end model
@@ -594,16 +594,16 @@ variable {T : ArithmeticTheory} [T.Δ₁] {M : RootedModel κ α} [Fintype M.Wor
 lemma solovay_root_sound [𝗜𝚺₁ ⪯ T] [sound : T.SoundOn (Arithmetic.Hierarchy 𝚷 2)] :
     T.Solovay M ℕ M.root.1 := by
   have : 𝗜𝚺₁ ⪯ T := inferInstance
-  haveI : 𝗥₀ ⪯ T := Entailment.WeakerThan.trans inferInstance this
+  have : 𝗥₀ ⪯ T := Entailment.WeakerThan.trans inferInstance this
   have NS : ∀ i, M.root.1 ≠ i → ¬T.Solovay M ℕ i := by
     intro i hi H
     have Bi : T ⊢ ∼T.solovay M i := (provable_iff_provable (T := T)).mp (Solovay.refute hi H)
     have : ¬T.Solovay M ℕ i := by
-      set π := θ T M i ⋏ ⩕ j ∈ { j : M.World | i ≺ j }, T.consistentWith/[⌜T.solovay M j⌝]
+      set π := θ T M i ⋏ ⩕ j ∈ { j : M.World | i ≺ j }, T.consistentWith.val/[⌜T.solovay M j⌝]
       have sπ : 𝗜𝚺₁ ⊢ T.solovay M i 🡘 π := solovay_diag T M i
       have : T ⊢ ∼π := by
         have : T ⊢ T.solovay M i 🡘 π := Entailment.WeakerThan.wk (inferInstanceAs (𝗜𝚺₁ ⪯ T)) sπ
-        exact Entailment.K!_left (Entailment.ENN!_of_E! this) ⨀ Bi
+        exact Entailment.K_left (Entailment.ENN_of_E this) ⨀ Bi
       have : ¬ℕ ⊧/![] π := by
         simpa [models_iff] using!
           sound.sound
@@ -627,19 +627,19 @@ end
 
 end SolovaySentences
 
-end LO.FirstOrder.Arithmetic.Bootstrapping
+end FFL.FirstOrder.Arithmetic.Bootstrapping
 
 
 section
 
-open LO LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
-open LO.FirstOrder.Arithmetic LO.FirstOrder.Arithmetic.Bootstrapping SolovaySentences
+open FFL FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
+open FFL.FirstOrder.Arithmetic FFL.FirstOrder.Arithmetic.Bootstrapping SolovaySentences
 open Model Model.World
 
 variable {κ : Type*} [Nonempty κ] {α : Type*} {A : _root_.Formula α}
 
-noncomputable def LO.FirstOrder.Theory.standardProvability.solovaySentences
+noncomputable def FFL.FirstOrder.Theory.standardProvability.solovaySentences
     (T : FirstOrder.ArithmeticTheory) [T.Δ₁] [𝗜𝚺₁ ⪯ T]
     (M : RootedModel κ α) [Fintype M.World] [M.IsGL] :
     T.standardProvability.SolovaySentences M where
@@ -663,7 +663,7 @@ theorem unprovable_realization_exists
   (M : RootedModel κ α) [Fintype M.World] [M.IsGL]
   (hA : M.root.1 ⊮[M.toModel] A) (h : M.height < T.height)
   : ∃ f : Realization α ℒₒᵣ, T ⊬ f T A := by
-  let S := LO.FirstOrder.Theory.standardProvability.solovaySentences (M := M.extendRoot 1) (T := T);
+  let S := FFL.FirstOrder.Theory.standardProvability.solovaySentences (M := M.extendRoot 1) (T := T);
   use S.realization;
   contrapose! h;
   apply Order.le_of_lt_add_one;

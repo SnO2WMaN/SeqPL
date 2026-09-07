@@ -17,3 +17,12 @@ rev = "master"
 name = "LeanTypst"
 git = "https://github.com/SnO2WMaN/lean-typst.git"
 rev = "main"
+
+# Required explicitly, and LAST, so that Mathlib's own pin of ProofWidgets wins over the
+# one LeanTypst requires: with a conflicting ProofWidgets, `lake exe cache get` computes
+# wrong hashes and refuses to fetch Mathlib's oleans. Keep the revision in sync with the
+# `lean-toolchain` above and with Foundation's Mathlib pin.
+[[require]]
+scope = "leanprover-community"
+name = "mathlib"
+rev = "v4.33.1"

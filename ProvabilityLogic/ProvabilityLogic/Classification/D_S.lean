@@ -7,8 +7,8 @@ public import ProvabilityLogic.Kripke.DModelTree
 @[expose] public section
 
 open Classical
-open LO LO.Entailment
-open LO.FirstOrder LO.FirstOrder.ProvabilityAbstraction
+open FFL FFL.Entailment
+open FFL.FirstOrder FFL.FirstOrder.ProvabilityAbstraction
 open Model Model.World
 open LogicGL
 
@@ -236,12 +236,12 @@ theorem exists_not_mem_LogicS_provable_LogicA_deltaPIff_imp_of_not_mem_LogicD [D
   -- **Lemma 3**: a D-model countermodel to `A`, realized as a tree-shaped ω-model.
   obtain ⟨κ₁, hne₁, M₁, hgl₁, htree₁, a₁, Rra₁, hcov₁, hlat₁, hnA₁⟩ :=
     LogicD.exists_graftOmega_countermodel_of_not_mem hA;
-  haveI := hne₁; haveI := hgl₁; haveI := htree₁;
+  have := hne₁; have := hgl₁; have := htree₁;
   -- **Lemma 8**: `A.atoms`-simplification, staying a tree-shaped D-model.
   obtain ⟨κ₂, hne₂, M₂, hgl₂, htree₂, a₂, Rra₂, -, hlatimp₂, -, htrans₂⟩ :=
     exists_simplificationUnder_omega' Rra₁ hcov₁ A.atoms;
-  haveI := hne₂; haveI := hgl₂; haveI := htree₂;
-  haveI : Fintype M₂.World := Fintype.ofFinite _;
+  have := hne₂; have := hgl₂; have := htree₂;
+  have : Fintype M₂.World := Fintype.ofFinite _;
   have hlat₂ := hlatimp₂ hlat₁;
   have hnA₂ : (M₂.graftOmega a₂).root.1 ⊮[(M₂.graftOmega a₂).toModel] A :=
     fun h => hnA₁ ((htrans₂ A (Finset.Subset.refl _)).mpr h);
@@ -254,7 +254,7 @@ theorem exists_not_mem_LogicS_provable_LogicA_deltaPIff_imp_of_not_mem_LogicD [D
   . -- `GLαω ⊢ Δ 🡒 ∼B ⋎ (□p 🡒 p)`, by the ω-model semantics of `GLαω`.
     apply LogicA.iff_provable_forces_graftOmega_root.mpr;
     intro κ₃ hne₃ N hgl₃ c Rrc;
-    haveI := hne₃; haveI := hgl₃;
+    have := hne₃; have := hgl₃;
     by_contra hcon;
     -- Pass to the tree unravelling, where the grafted point covers the root.
     rw [← unravelling.graftOmega_root_forces_iff Rrc] at hcon;
@@ -262,11 +262,11 @@ theorem exists_not_mem_LogicS_provable_LogicA_deltaPIff_imp_of_not_mem_LogicD [D
     obtain ⟨κ₄, hne₄, L, hgl₄, htree₄, c₄, Rrc₄, hcov₄, -, hsimple₄, htrans₄⟩ :=
       exists_simplificationUnder_omega' (unravelling.root_rel_coverPoint Rrc)
         (unravelling.coverPoint_covers_root Rrc) (insert p A.atoms);
-    haveI := hne₄; haveI := hgl₄; haveI := htree₄;
-    haveI hLgl : (L.graftOmega c₄).IsGL := graftOmega.isGL Rrc₄;
-    haveI : IsTrans _ (L.graftOmega c₄).Rel := hLgl.toIsTrans;
-    haveI : IsConverseWellFounded _ (L.graftOmega c₄).Rel := hLgl.toIsConverseWellFounded;
-    haveI : Std.Irrefl (L.graftOmega c₄).Rel := ConverseWellFounded.irrefl;
+    have := hne₄; have := hgl₄; have := htree₄;
+    have hLgl : (L.graftOmega c₄).IsGL := graftOmega.isGL Rrc₄;
+    have : IsTrans _ (L.graftOmega c₄).Rel := hLgl.toIsTrans;
+    have : IsConverseWellFounded _ (L.graftOmega c₄).Rel := hLgl.toIsConverseWellFounded;
+    have : Std.Irrefl (L.graftOmega c₄).Rel := ConverseWellFounded.irrefl;
     -- Unpack the countermodel and transport each part along the simplification.
     obtain ⟨hΔT, hdisjT⟩ := not_forces_imp.mp hcon;
     obtain ⟨hnBT, hnTT⟩ := not_forces_or.mp hdisjT;
@@ -371,7 +371,7 @@ theorem provable_reflection_of_mem_not_LogicD :
   set U₁ : FirstOrder.ArithmeticTheory :=
     𝗜𝚺₁ ∪ (Set.range (fun g : Realization (Option α) ℒₒᵣ => g T B))
     with hU₁;
-  haveI : 𝗜𝚺₁ ⪯ U₁ := inferInstance;
+  have : 𝗜𝚺₁ ⪯ U₁ := inferInstance;
   have hBI : B ∈ (T.provabilityLogicRelativeTo U₁ : Logic (Option α)) := by
     intro g;
     apply Entailment.by_axm;
@@ -389,7 +389,7 @@ theorem provable_reflection_of_mem_not_LogicD :
       Logic.sumQuasiNormal.mem₂ ⟨TBBMinus _ pf, rfl, rfl⟩;
     rwa [← h49] at this;
   set f₀ : Realization (Option α) ℒₒᵣ := ⟨fun _ => ⊥⟩ with hf₀;
-  obtain ⟨⟨s, hs_sub⟩, hs⟩ := LO.FirstOrder.Theory.compact_add_right (hs₀I f₀);
+  obtain ⟨⟨s, hs_sub⟩, hs⟩ := FFL.FirstOrder.Theory.compact_add_right (hs₀I f₀);
   obtain ⟨G, -, hG_cov⟩ := finite_preimage_choice s Set.univ
     (fun g : Realization (Option α) ℒₒᵣ => g T B)
     (fun σ' hσ' => by
@@ -409,7 +409,7 @@ theorem provable_reflection_of_mem_not_LogicD :
         ∈ LogicGL := by
       apply LogicGL.iff_forces_root.mpr;
       intro κ _ M _;
-      haveI : Fintype M.World := Fintype.ofFinite _;
+      have : Fintype M.World := Fintype.ofFinite _;
       apply Model.World.forces_imp.mpr;
       by_cases hx : M.root.1 ⊩[_] ⋀(pf.toFinset.image (TBB : ℕ → Formula (Option α)));
       . right;
@@ -433,10 +433,10 @@ theorem provable_reflection_of_mem_not_LogicD :
   -- Combine everything at the arithmetical level.
   have w₂ : U ⊢ s.conj 🡒 f₀ T (LetterlessFormula.lift (TBBMinus _ pf) : Formula (Option α)) :=
     Entailment.WeakerThan.pbl hs;
-  have w₃ : U ⊢ (f₀ T (LetterlessFormula.lift (TBBMinus _ pf) : Formula (Option α))) 🡒 ⊥ :=
+  have w₃ : U ⊢ (f₀ T (LetterlessFormula.lift (TBBMinus _ pf) : Formula (Option α))) 🡒 (⊥ : ArithmeticSentence) :=
     hnots₀ f₀;
   have w₁ : U ⊢ (∼((T.standardProvability σ) 🡒 σ)) 🡒 s.conj := by
-    apply right_Fconj!_intro;
+    apply right_Fconj_intro;
     intro σ' hσ';
     obtain ⟨g, -, rfl⟩ := hG_cov σ' hσ';
     set g' : Realization (Option α) ℒₒᵣ :=
@@ -450,7 +450,7 @@ theorem provable_reflection_of_mem_not_LogicD :
       obtain ⟨b, -, rfl⟩ := Finset.mem_image.mp this;
       rfl;
     have e₂ : g' T (B ⋎ ((□(#(none : Option α))) 🡒 (#(none : Option α))))
-        = ((g' T B 🡒 ⊥) 🡒 ((T.standardProvability σ) 🡒 σ)) := rfl;
+        = ((g' T B 🡒 (⊥ : ArithmeticSentence)) 🡒 ((T.standardProvability σ) 🡒 σ)) := rfl;
     rw [e₂, e₁] at hfact;
     cl_prover [hfact];
   cl_prover [w₁, w₂, w₃];

@@ -714,14 +714,14 @@ theorem provability_TFAE : [
     exact Model.validate_reindex_iff.mp <| h (M.reindex (Equiv.ulift (α := Fin n)).symm);
   tfae_have 5 → 3 := by
     intro h κ _ M _;
-    haveI : Finite κ := (inferInstance : Finite M.World);
+    have : Finite κ := (inferInstance : Finite M.World);
     exact Model.validate_toConcrete_iff.mp <| h M.card M.toConcrete;
   tfae_have 4 → 6 := by
     intro h n _ M _;
     exact RootedModel.forces_reindex_root_iff.mp <| h (M.reindex (Equiv.ulift (α := Fin n)).symm);
   tfae_have 6 → 4 := by
     intro h κ _ M _;
-    haveI : Finite κ := (inferInstance : Finite M.World);
+    have : Finite κ := (inferInstance : Finite M.World);
     exact RootedModel.forces_toConcrete_root_iff.mp <| h M.card M.toConcrete;
   tfae_finish;
 

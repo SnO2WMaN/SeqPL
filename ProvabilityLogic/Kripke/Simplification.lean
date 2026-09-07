@@ -271,8 +271,8 @@ theorem exists_simplificationUnder :
     intro κ _ M _ _ hcard;
     by_cases hex : ∃ a : M.NonRoot, Redundant M P a;
     . obtain ⟨a, hred⟩ := hex;
-      haveI hfin : Fintype (M.removeCone a).World := Fintype.ofFinite _;
-      haveI : (M.removeCone a).IsTree := removeCone.isTree;
+      have hfin : Fintype (M.removeCone a).World := Fintype.ofFinite _;
+      have : (M.removeCone a).IsTree := removeCone.isTree;
       obtain ⟨κ', hNe', M', hFin', hGL', hTree', hSimple', hEq'⟩ :=
         ih (Fintype.card (M.removeCone a).World) (by rw [← hcard]; exact removeCone.card_lt a)
           (M.removeCone a) rfl;
@@ -491,15 +491,15 @@ theorem exists_simplificationUnder_omega_aux [DecidableEq α] :
   | _ n ih =>
     intro κ _ M _ _ a Rra hcov hcard;
     have hane : a ≠ M.root.1 := fun h => Std.Irrefl.irrefl _ (h ▸ Rra);
-    haveI : (M.graftOmega ⟨a, hane⟩).IsGL := graftOmega.isGL Rra;
-    haveI : (M.graftOmega ⟨a, hane⟩).IsTree := graftOmega.isTree Rra hcov;
+    have : (M.graftOmega ⟨a, hane⟩).IsGL := graftOmega.isGL Rra;
+    have : (M.graftOmega ⟨a, hane⟩).IsTree := graftOmega.isTree Rra hcov;
     by_cases hex : ∃ w : (M.graftOmega ⟨a, hane⟩).NonRoot, (M.graftOmega ⟨a, hane⟩).Redundant P w;
     . obtain ⟨w, hred⟩ := hex;
       obtain ⟨m, hm, -, rfl⟩ := graftOmega.exists_of_redundant hred;
       have hma : ¬ a.IsInConeOf m :=
         graftOmega.not_isInConeOf_of_redundant Rra hcov hm hred;
-      haveI : Fintype (M.removeCone ⟨m, hm⟩).World := Fintype.ofFinite _;
-      haveI : (M.removeCone ⟨m, hm⟩).IsTree := removeCone.isTree;
+      have : Fintype (M.removeCone ⟨m, hm⟩).World := Fintype.ofFinite _;
+      have : (M.removeCone ⟨m, hm⟩).IsTree := removeCone.isTree;
       have hcov' : ∀ x : (M.removeCone ⟨m, hm⟩).World,
           x.IsProperPredecessorOf ⟨a, hma⟩ → x = (M.removeCone ⟨m, hm⟩).root.1 := by
         rintro ⟨x, hx⟩ ⟨hne, hR⟩;
@@ -546,7 +546,7 @@ theorem exists_simplificationUnder_omega' [DecidableEq α] {κ : Type u} [Nonemp
   ((M.graftOmega ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩).root.1
     ⊩[(M.graftOmega ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩).toModel] C ↔
     (M'.graftOmega a').root.1 ⊩[(M'.graftOmega a').toModel] C) := by
-  haveI : Fintype M.World := Fintype.ofFinite _;
+  have : Fintype M.World := Fintype.ofFinite _;
   exact exists_simplificationUnder_omega_aux (Fintype.card M.World) M a Rra hcov rfl;
 
 /--
@@ -566,7 +566,7 @@ theorem exists_simplificationUnder_omega [DecidableEq α] {κ : Type u} [Nonempt
     ⊩[(M.graftOmega ⟨a, fun h => Std.Irrefl.irrefl _ (h ▸ Rra)⟩).toModel] C ↔ M'.root.1 ⊩[M'.toModel] C) := by
   obtain ⟨κ', hNe', M', hGL', hTree', a', Rra', hcov', -, hSimple', hEq'⟩ :=
     exists_simplificationUnder_omega' Rra hcov P;
-  haveI := hNe'; haveI := hGL'; haveI := hTree';
+  have := hNe'; have := hGL'; have := hTree';
   exact ⟨graftOmega.World M', inferInstance, M'.graftOmega a',
     graftOmega.isGL Rra', graftOmega.isTree Rra' hcov', hSimple', hEq'⟩;
 

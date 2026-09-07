@@ -6,8 +6,8 @@ public import ProvabilityLogic.Logic.GL.Basic
 @[expose] public section
 
 open Classical
-open LO
-open LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.FirstOrder.ProvabilityAbstraction
 open LogicGL
 
 /-- `LogicGLPlusBoxBot n`: the quasi-normal extension of `GL` by the boxbot axiom `□^[n]⊥`

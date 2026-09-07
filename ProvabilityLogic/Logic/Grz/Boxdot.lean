@@ -106,7 +106,7 @@ lemma provable_Grz_of_provable_boxdot_GL :  Aᵇ ∈ LogicGL → A ∈ LogicGrz 
         rintro x y z ⟨Rxy, hxy⟩ ⟨Ryz, hyz⟩;
         constructor;
         . exact hM.trans _ _ _ Rxy Ryz;
-        . by_contra!;
+        . by_contra;
           subst this;
           have := hM.toAntisymm.antisymm _ _ Rxy Ryz;
           contradiction;

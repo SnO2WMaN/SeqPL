@@ -119,7 +119,7 @@ lemma spectrum_finite_or_cofinite : A.spectrum.Finite ∨ A.spectrumᶜ.Finite :
       obtain ⟨k, hk₁, hk₂⟩ := exists_minimal_of_wellFoundedLT (λ k => k ∉ spectrum A) $ Set.ne_univ_iff_exists_notMem _ |>.mp h;
       have : {n | ∀ i < n, i ∈ spectrum A} = { n | n ≤ k} := by
         ext i;
-        suffices (∀ j < i, j ∈ spectrum A) ↔ i ≤ k by simpa [Set.mem_setOf_eq];
+        suffices (∀ j < i, j ∈ spectrum A) ↔ i ≤ k by simpa [Set.mem_ofPred_eq];
         constructor;
         . intro h;
           contrapose! hk₁;
@@ -314,8 +314,8 @@ lemma GL_proves_letterless_axiomWeakPoint3 : ((□((⊡A) 🡒 B)) ⋎ (□((⊡
 
 end
 
-open LO
-open LO.FirstOrder.ProvabilityAbstraction
+open FFL
+open FFL.FirstOrder.ProvabilityAbstraction
 open LogicGL
 
 namespace LetterlessFormula
@@ -389,7 +389,7 @@ lemma singular_boxItr_bot : Singular T (□^[n]⊥) := by
   | n + 1 =>
     apply not_imp_not.mpr $ Provability.SoundOn.sound_on;
     rw [interpret_boxItr];
-    exact LO.FirstOrder.ProvabilityAbstraction.iIncon_unprovable_of_sigma1_sound n;
+    exact FFL.FirstOrder.ProvabilityAbstraction.iIncon_unprovable_of_sigma1_sound n;
 
 @[simp, grind .]
 lemma regular_TBB : Regular T (TBB n) := by
@@ -716,7 +716,7 @@ lemma iff_GL_sumQuasiNormal_proves_subset_spectrum (hSR : X.Singular T ∨ A.Reg
           intro j hj;
           simp only [Set.mem_iUnion, cf];
           exact ⟨j, hj, (H j hj).choose_spec.2⟩;
-        haveI : Fintype { i // i ∈ trace A } := htr.fintype;
+        have : Fintype { i // i ∈ trace A } := htr.fintype;
         use Finset.univ.image (λ i : { i // i ∈ trace A } => cf i.1 i.2);
         constructor;
         . simp only [Finset.mem_image, Finset.mem_univ, true_and, Subtype.exists, forall_exists_index];
@@ -863,7 +863,7 @@ theorem letterless_provabilityLogic (X : LetterlessFormulaSet) :
     | @subst B s _ ihB => intro f; simp only [Formula.interpret_subst]; exact ihB _
   . intro h;
     let f₀ := LogicGL.uniformRealization (α := α) T;
-    obtain ⟨⟨s, hs_sub⟩, hs⟩ := LO.FirstOrder.Theory.compact_add_right (h f₀);
+    obtain ⟨⟨s, hs_sub⟩, hs⟩ := FFL.FirstOrder.Theory.compact_add_right (h f₀);
     obtain ⟨Δ, hΔ_sub, hΔ_cov⟩ := finite_preimage_choice s X (LetterlessFormula.standardInterpret T) (by
       intro σ hσ;
       obtain ⟨B, hB, hσ'⟩ := hs_sub hσ;
@@ -872,8 +872,8 @@ theorem letterless_provabilityLogic (X : LetterlessFormulaSet) :
     have ha : (C 🡒 A) ∈ LogicGL := by
       apply (LogicGL.uniformRealization_spec (T := T) (C 🡒 A)).mp;
       show T ⊢ f₀ T C 🡒 f₀ T A;
-      apply Entailment.C!_trans ?_ hs;
-      apply Entailment.right_Fconj!_intro;
+      apply Entailment.C_trans ?_ hs;
+      apply Entailment.right_Fconj_intro;
       intro σ hσ;
       obtain ⟨B, hBΔ, rfl⟩ := hΔ_cov σ hσ;
       rw [show (LetterlessFormula.standardInterpret T B)

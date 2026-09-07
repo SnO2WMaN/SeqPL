@@ -136,10 +136,10 @@ lemma forces_toConcrete_iff' {x : M.toConcrete.World} :
 
 lemma validate_toConcrete_iff : M.toConcrete ⊧ A ↔ M ⊧ A := validate_reindex_iff
 
-instance [M.IsFiniteGL] : M.toConcrete.IsFiniteGL := inferInstanceAs (M.reindex _).IsFiniteGL
+instance [M.IsFiniteGL] : M.toConcrete.IsFiniteGL := inferInstanceAs (M.reindex (Finite.equivFin κ)).IsFiniteGL
 
 instance [M.IsFiniteGLPoint3] : M.toConcrete.IsFiniteGLPoint3 :=
-  inferInstanceAs (M.reindex _).IsFiniteGLPoint3
+  inferInstanceAs (M.reindex (Finite.equivFin κ)).IsFiniteGLPoint3
 
 end Model
 
@@ -151,10 +151,10 @@ variable {M : RootedModel κ α} {A : Formula α}
 noncomputable def toConcrete (M : RootedModel κ α) : RootedModel (Fin M.card) α :=
   M.reindex (Finite.equivFin κ)
 
-instance [M.IsFiniteGL] : M.toConcrete.IsFiniteGL := inferInstanceAs (M.reindex _).IsFiniteGL
+instance [M.IsFiniteGL] : M.toConcrete.IsFiniteGL := inferInstanceAs (M.reindex (Finite.equivFin κ)).IsFiniteGL
 
 instance [M.IsFiniteGLPoint3] : M.toConcrete.IsFiniteGLPoint3 :=
-  inferInstanceAs (M.reindex _).IsFiniteGLPoint3
+  inferInstanceAs (M.reindex (Finite.equivFin κ)).IsFiniteGLPoint3
 
 lemma forces_toConcrete_root_iff :
   M.toConcrete.root.1 ⊩[M.toConcrete.toModel] A ↔ M.root.1 ⊩[M.toModel] A :=

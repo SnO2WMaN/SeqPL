@@ -49,7 +49,7 @@ theorem soundness_graftOmega {Γ Δ : FormulaFinset α}
     | liftUp h ih =>
       have ha : a ≠ M.root.1 := fun h => Std.Irrefl.irrefl _ (h ▸ Rra);
       let Mω := M.graftOmega ⟨a, ha⟩;
-      haveI : Mω.IsGL := graftOmega.isGL (a := ⟨a, ha⟩) Rra;
+      have : Mω.IsGL := graftOmega.isGL (a := ⟨a, ha⟩) Rra;
       exact soundness_zero h Mω.toModel Mω.root.1;
     | boxGL h ih => simp at hl;
     | boxGP h ih =>
@@ -74,7 +74,7 @@ private lemma exists_countermodel {Γ Δ : FormulaFinset α}
   (h : ⊬ᵍ[GL] (Γ ⟹ Δ)) :
   ∃ (κ : Type u) (_ : Nonempty κ) (M : Model κ α) (_ : M.IsFiniteGL) (x : M.World),
   (∀ C ∈ Γ, x ⊩[M] C) ∧ (∀ D ∈ Δ, x ⊮[M] D) := by
-  haveI : Fact (⊬ᵍ[GL] (Γ ⟹ Δ)) := ⟨h⟩;
+  have : Fact (⊬ᵍ[GL] (Γ ⟹ Δ)) := ⟨h⟩;
   exact ⟨_, inferInstance, countermodelOf (Γ ⟹ Δ), inferInstance,
     ExpandedSequent.lindenbaum _ h Sequent.subset_self_subfmls,
     fun _ hC => truthlemma_ant (ExpandedSequent.subset_lindenbaum.1 hC),
@@ -92,7 +92,7 @@ private lemma provableGentzenGL_of_forces_graftOmega {Γ Δ : FormulaFinset α}
   by_contra hnp;
   set N := (FormulaFinset.prebox (Γ ⟹ Δ : Sequent α).subfmls).card with hN;
   obtain ⟨_, _, M₀, _, x, hΓ, hΔ⟩ := exists_countermodel hnp;
-  haveI : Fintype M₀.World := Fintype.ofFinite _;
+  have : Fintype M₀.World := Fintype.ofFinite _;
   have h₁ : N < x.rank := by
     have : ¬(x.rank < n) := fun hc =>
       hΔ _ (Finset.mem_insert_self _ _) (Model.iff_rank_lt_forces_boxItr_bot.mp hc);

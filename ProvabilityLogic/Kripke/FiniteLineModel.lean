@@ -45,7 +45,7 @@ lemma rank_eq (i : (finiteLineModel n α).World) : i.rank = (n - i) := by
   | cast i ih =>
     suffices (finiteLineModel.of (α := α) i.castSucc).rank =
       (finiteLineModel.of (α := α) i.succ).rank + 1 by grind;
-    haveI : IsConverseWellFounded (finiteLineModel n α).World (finiteLineModel n α).Rel :=
+    have : IsConverseWellFounded (finiteLineModel n α).World (finiteLineModel n α).Rel :=
       ⟨(inferInstance : (finiteLineModel n α).IsGL).cwf⟩;
     apply cwfHeight_eq_succ_cwfHeight (R := (finiteLineModel n α).Rel);
     . exact Fin.castSucc_lt_succ;

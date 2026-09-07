@@ -533,7 +533,7 @@ theorem completeness {Γ Δ : FormulaFinset α}
   )
   : ⊢ᵍ[S] (Γ ⟹[1] Δ) := by
   by_contra hp;
-  haveI : Fact (⊬ᵍ[GL] (Γ ⟹ Δ)) := ⟨not_provableGentzen_of_not_provable_one hp⟩;
+  have : Fact (⊬ᵍ[GL] (Γ ⟹ Δ)) := ⟨not_provableGentzen_of_not_provable_one hp⟩;
   have hsub : (Γ ⟹ Δ).1 ∪ (Γ ⟹ Δ).2 ⊆ (Γ ⟹ Δ).subfmls := by grind;
   let T : ExpandedLayeredSequent (Γ ⟹ Δ) := ExpandedLayeredSequent.lindenbaum (Γ ⟹ Δ) (Γ ⟹ Δ) hp hsub;
   let t : ExpandedSequent (Γ ⟹ Δ) := T.toExpandedSequent;
